@@ -13,7 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=1788564624">
+<link rel="stylesheet" href="estilo.css?v=1788564785">
 </head>
 <body>
 <main>
@@ -38,13 +38,7 @@
 
     <div class="texto">
       <div class="apoyo" id="apoyo">
-        <div class="desplegable" id="eligeCaja"><div><p class="elige">Elige cómo apoyar</p></div></div>
-        <div class="metodos" id="metodos" role="radiogroup" aria-label="Forma de pago">
-          <button type="button" data-m="apple" aria-label="Apple Pay"><svg viewBox="0 0 48 20"><rect width="48" height="20" rx="4" fill="#000"/><text x="13" y="14.6" font-family="-apple-system,Helvetica,Arial" font-size="12" fill="#fff" text-anchor="middle">&#63743;</text><text x="30" y="14" font-family="-apple-system,Helvetica,Arial" font-size="10" font-weight="600" fill="#fff" text-anchor="middle">Pay</text></svg></button>
-          <button type="button" data-m="google" aria-label="Google Pay"><svg viewBox="0 0 48 20"><rect x=".5" y=".5" width="47" height="19" rx="4" fill="#fff" stroke="#d8d8dd"/><text x="15" y="14.5" font-family="Helvetica,Arial" font-size="11" font-weight="700" fill="#4285F4" text-anchor="middle">G</text><text x="31" y="14" font-family="Helvetica,Arial" font-size="10" font-weight="600" fill="#3c4043" text-anchor="middle">Pay</text></svg></button>
-          <button type="button" data-m="tarjeta" aria-label="Tarjeta"><svg viewBox="0 0 48 20"><rect x=".5" y=".5" width="47" height="19" rx="4" fill="#fff" stroke="#d8d8dd"/><text x="15" y="13.6" font-family="Helvetica,Arial" font-size="8.5" font-weight="800" font-style="italic" fill="#1a1f71" text-anchor="middle">VISA</text><circle cx="31" cy="10" r="5" fill="#eb001b"/><circle cx="37" cy="10" r="5" fill="#f79e1b" fill-opacity=".92"/></svg></button>
-        </div>
-        <div class="desplegable" id="detalle"><div>
+        <div class="desplegable" id="detalle"><div class="detalle-int">
           <div class="importes" id="importes">
             <button type="button" data-v="3">3 €</button>
             <button type="button" data-v="5" class="on">5 €</button>
@@ -52,10 +46,14 @@
             <button type="button" data-v="20">20 €</button>
             <label class="otro"><span>€</span><input id="otro" type="number" min="1" max="1000" step="1" placeholder="otro"></label>
           </div>
-          <div id="tarjeta"></div>
           <div id="express"></div>
+          <div class="o" id="o" hidden><span>o con tarjeta</span></div>
+          <div id="tarjeta"></div>
         </div></div>
         <button class="boton" id="apoyar" type="button">Apoyar el proyecto</button>
+        <div class="marcas" aria-label="Formas de pago aceptadas">
+          <img src="img/apple-pay.svg" alt="Apple Pay"><img src="img/google-pay.svg" alt="Google Pay"><img src="img/visa.svg" alt="Visa"><img src="img/mastercard.svg" alt="Mastercard">
+        </div>
         <p class="aviso" id="aviso" hidden></p>
         <p class="legalito"><a href="/condiciones">Condiciones del apoyo</a></p>
       </div>
@@ -63,7 +61,7 @@
   </section>
 </main>
 <script src="https://js.stripe.com/v3/"></script>
-<script src="app.js?v=1788564624"></script>
-<script src="apoyo.js?v=1788564624"></script>
+<script src="app.js?v=1788564785"></script>
+<script src="apoyo.js?v=1788564785"></script>
 </body>
 </html>
