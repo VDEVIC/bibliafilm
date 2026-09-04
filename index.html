@@ -3,62 +3,39 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#120f0c">
+<meta name="theme-color" content="#ffffff">
 <title>Biblia Film · La Biblia entera, en vídeo</title>
-<meta name="description" content="La Biblia entera en vídeo, palabra por palabra. Un clip cada día. La película completa, seguida y sin cortes, se va montando aquí.">
+<meta name="description" content="La Biblia entera en vídeo, palabra por palabra. Un clip cada día. La película completa, seguida y sin cortes, crece aquí.">
 <meta property="og:title" content="Biblia Film · La Biblia entera, en vídeo">
-<meta property="og:description" content="Un capítulo cada día. La película, entera y gratis, aquí.">
-<meta property="og:image" content="https://bibliafilm.com/media/portada.jpg">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23120f0c'/><text x='32' y='44' font-size='34' text-anchor='middle' font-family='Georgia' fill='%23c9a45c'>B</text></svg>">
+<meta property="og:description" content="Un clip cada día. La película completa, seguida y sin cortes, crece aquí.">
+<meta property="og:image" content="https://media.bibliafilm.com/portada.jpg">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231d1d1f'/><text x='32' y='45' font-size='36' text-anchor='middle' font-family='Georgia' fill='%23ffffff'>B</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
-<header class="cab">
-  <div class="marca">BIBLIA FILM</div>
-  <h1 class="temp">La Biblia entera</h1>
-  <div class="dia" id="dia">Génesis</div>
-</header>
-
 <main>
+  <header class="cab">
+    <div class="marca">Biblia Film</div>
+    <h1>La Biblia entera, <span>en vídeo.</span></h1>
+    <p class="intro">Palabra por palabra. Cada día, un clip de 30 segundos que lee el texto tal cual y lo muestra. Todos los clips se unen aquí en una sola película, seguida y sin cortes. Empieza por Génesis.</p>
+  </header>
+
   <section class="peli">
     <div class="marco">
-      <video id="pelicula" playsinline preload="metadata" controls poster=""></video>
-      <button class="play" id="play" aria-label="Ver la película"></button>
+      <video id="pelicula" playsinline preload="metadata" controls></video>
+      <button class="play" id="play" aria-label="Ver"></button>
     </div>
-    <div class="barra"><div class="lleno" id="lleno"></div></div>
     <p class="estado" id="estado"></p>
-    <p class="nota" id="nota">Palabra por palabra, un clip cada día. La película entera, seguida y sin cortes, crece aquí.</p>
-  </section>
-
-  <section class="hoy" id="hoy"></section>
-
-  <section class="lista">
-    <h2>Clips</h2>
-    <ol id="capitulos" reversed></ol>
   </section>
 
   <section class="apoyo">
     <a class="boton" id="apoyar" href="#" rel="noopener">Apoyar el proyecto</a>
-    <p class="chico">Sin anuncios y sin suscripción. Cada clip cuesta dinero de verdad. Si quieres que la película siga creciendo, esto la sostiene.</p>
+    <p class="chico">Sin anuncios y sin suscripción. Cada clip cuesta dinero de verdad; tu apoyo hace el siguiente.</p>
   </section>
 </main>
-
-<footer class="pie">
-  <nav class="redes" id="redes"></nav>
-  <p>Texto: Reina-Valera 1909, dominio público. Un capítulo cada día.</p>
-</footer>
-
-<div class="visor" id="visor" hidden>
-  <button class="cerrar" id="cerrar" aria-label="Cerrar">×</button>
-  <div class="visor-cuerpo">
-    <video id="clip" playsinline controls></video>
-    <div class="visor-pie">
-      <div class="visor-titulo" id="visor-titulo"></div>
-      <div class="visor-ref" id="visor-ref"></div>
-    </div>
-  </div>
-</div>
-
 <script src="app.js"></script>
 </body>
 </html>
