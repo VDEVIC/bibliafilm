@@ -46,7 +46,7 @@
     metodo = m; metodos.forEach(b => b.classList.toggle('on', b.dataset.m === m)); cierra(eligeCaja); limpia();
     elements = stripe.elements({ mode: 'payment', amount: cts(), currency: 'eur', appearance: aspecto, fonts: fuentes, locale: 'es', paymentMethodTypes: ['card'] });
     if (m === 'tarjeta') {
-      pago = elements.create('payment', { layout: 'tabs', fields: { billingDetails: { name: 'never', email: 'auto', address: 'never' } }, wallets: { applePay: 'never', googlePay: 'never' } });
+      pago = elements.create('payment', { layout: 'tabs', wallets: { applePay: 'never', googlePay: 'never' } });
       pago.mount(zonaTarjeta);
     } else {
       express = elements.create('expressCheckout', { buttonHeight: 54, buttonTheme: { applePay: 'black', googlePay: 'black' }, layout: { maxColumns: 1, overflow: 'never' },

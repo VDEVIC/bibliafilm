@@ -7,7 +7,7 @@ export async function onRequestPost({ request, env }) {
     if (!Number.isFinite(cts) || cts < 100 || cts > 100000) return new Response(JSON.stringify({ error: 'importe' }), { status: 400, headers: cab });
     const cuerpo = new URLSearchParams({
       amount: String(cts), currency: 'eur', description: 'Apoyo a Biblia Film',
-      'automatic_payment_methods[enabled]': 'true', statement_descriptor_suffix: 'APOYO',
+      'payment_method_types[0]': 'card', statement_descriptor_suffix: 'APOYO',
       'metadata[proyecto]': 'bibliafilm', 'metadata[origen]': 'web'
     });
     const r = await fetch('https://api.stripe.com/v1/payment_intents', { method: 'POST', headers: { Authorization: 'Bearer ' + env.STRIPE_SECRET_KEY, 'Content-Type': 'application/x-www-form-urlencoded' }, body: cuerpo });
