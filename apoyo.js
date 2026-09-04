@@ -5,7 +5,8 @@
   const $ = id => document.getElementById(id);
   const boton = $('apoyar'), pagar = $('pagar'), aviso = $('aviso'), otro = $('otro'), marcas = $('marcas');
   const zonas = { eligir: $('zEligir'), importes: $('zImportes'), apple: $('zApple'), google: $('zGoogle'), tarjeta: $('zTarjeta') };
-  const chips = [...document.querySelectorAll('#importes button')], iconos = [...document.querySelectorAll('#marcas button')];
+  const chips = [...document.querySelectorAll('#importes button')], iconos = [...document.querySelectorAll('#marcas button')], acepto = $('acepto');
+  const aceptado = () => { if (acepto.checked) return true; nota('Marca la casilla de las condiciones para continuar.', true); acepto.focus(); return false; };
   let importe = 5, metodo = null, abierto = false, ocupado = false, servidorOk = true;
   const disponible = { apple: null, google: null, tarjeta: true };
   const cts = () => Math.round(importe * 100);
@@ -24,10 +25,12 @@
   const exApple = els.apple.create('expressCheckout', { buttonHeight: 54, buttonTheme: { applePay: 'black' }, layout: { maxColumns: 1, overflow: 'never' }, paymentMethods: Object.assign({ applePay: 'always', googlePay: 'never' }, nunca) });
   exApple.mount('#expressApple');
   exApple.on('ready', ev => { disponible.apple = !!(ev.availablePaymentMethods||{}).applePay; pinta(); });
+  exApple.on('click', ev => { if (aceptado()) ev.resolve(); });
   exApple.on('confirm', () => confirma());
   const exGoogle = els.google.create('expressCheckout', { buttonHeight: 54, buttonTheme: { googlePay: 'black' }, layout: { maxColumns: 1, overflow: 'never' }, paymentMethods: Object.assign({ applePay: 'never', googlePay: 'always' }, nunca) });
   exGoogle.mount('#expressGoogle');
   exGoogle.on('ready', ev => { disponible.google = !!(ev.availablePaymentMethods||{}).googlePay; pinta(); });
+  exGoogle.on('click', ev => { if (aceptado()) ev.resolve(); });
   exGoogle.on('confirm', () => confirma());
   const pago = els.tarjeta.create('payment', { layout: 'tabs', wallets: { applePay: 'never', googlePay: 'never' } });
   pago.mount('#tarjeta');
@@ -66,7 +69,8 @@
     } catch (e) { nota(e.message || 'No se ha podido completar el pago.'); }
     finally { ocupado = false; pagar.disabled = false; }
   }
-  pagar.onclick = confirma;
+  pagar.onclick = () => { if (aceptado()) confirma(); };
+  acepto.onchange = () => { if (acepto.checked) aviso.hidden = true; };
   boton.onclick = () => {
     if (!servidorOk) { fetch('episodios.json').then(r=>r.json()).then(d => { location.href = d.apoyo; }); return; }
     abierto = true; abre(zonas.eligir);

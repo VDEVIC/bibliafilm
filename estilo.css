@@ -64,6 +64,9 @@ h1 span{font-style:italic;font-weight:500;color:var(--acc)}
 .marcas.pide{animation:pide .5s ease}
 @keyframes pide{0%{transform:scale(1)}40%{transform:scale(1.05)}100%{transform:scale(1)}}
 #tarjeta{margin-bottom:12px}
+.acepto{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:15px;color:var(--dim);cursor:pointer}
+.acepto input{width:18px;height:18px;margin-top:3px;accent-color:var(--tinta);flex:0 0 auto}
+.acepto a{color:var(--acc)}
 .aviso{margin-top:10px;font-size:15px;color:#a3362c;text-align:center}
 .aviso.suave{color:var(--dim);font-style:italic}
 .legalito{text-align:center;margin-top:12px;font-size:13px}
