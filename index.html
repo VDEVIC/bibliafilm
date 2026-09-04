@@ -13,65 +13,53 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=1788563244">
+<link rel="stylesheet" href="estilo.css?v=1788563690">
 </head>
 <body>
 <main>
   <section class="hero">
-    <div class="texto">
-      <div class="marca">Biblia Film</div>
-      <h1>Película completa <span>de la Biblia.</span></h1>
-      <p class="intro">Cada día iremos sumando contenido según vayamos recibiendo apoyo para terminar el proyecto.</p>
-
-      <div class="apoyo" id="apoyo">
-        <div class="apoyo-cab">
-          <span class="apoyo-t">Apoyar el proyecto</span>
-          <span class="iconos" aria-label="Apple Pay, Google Pay, Visa y Mastercard">
-            <svg viewBox="0 0 48 20" aria-hidden="true"><rect width="48" height="20" rx="4" fill="#000"/><text x="12" y="14.5" font-family="-apple-system,Helvetica,Arial" font-size="12" fill="#fff" text-anchor="middle">&#63743;</text><text x="29" y="14" font-family="-apple-system,Helvetica,Arial" font-size="10" font-weight="600" fill="#fff" text-anchor="middle">Pay</text></svg>
-            <svg viewBox="0 0 48 20" aria-hidden="true"><rect x=".5" y=".5" width="47" height="19" rx="4" fill="#fff" stroke="#d8d8dd"/><text x="15" y="14.5" font-family="Helvetica,Arial" font-size="11" font-weight="700" fill="#4285F4" text-anchor="middle">G</text><text x="31" y="14" font-family="Helvetica,Arial" font-size="10" font-weight="600" fill="#3c4043" text-anchor="middle">Pay</text></svg>
-            <svg viewBox="0 0 48 20" aria-hidden="true"><rect x=".5" y=".5" width="47" height="19" rx="4" fill="#fff" stroke="#d8d8dd"/><text x="24" y="14" font-family="Helvetica,Arial" font-size="10" font-weight="800" font-style="italic" fill="#1a1f71" text-anchor="middle">VISA</text></svg>
-            <svg viewBox="0 0 48 20" aria-hidden="true"><rect x=".5" y=".5" width="47" height="19" rx="4" fill="#fff" stroke="#d8d8dd"/><circle cx="20" cy="10" r="6" fill="#eb001b"/><circle cx="28" cy="10" r="6" fill="#f79e1b" fill-opacity=".92"/></svg>
-          </span>
-        </div>
-        <div class="importes" id="importes">
-          <button type="button" data-v="3">3 €</button>
-          <button type="button" data-v="5" class="on">5 €</button>
-          <button type="button" data-v="10">10 €</button>
-          <button type="button" data-v="20">20 €</button>
-          <label class="otro"><span>€</span><input id="otro" type="number" min="1" max="1000" step="1" placeholder="otro"></label>
-        </div>
-        <div id="express"></div>
-        <div id="tarjeta"></div>
-        <button class="boton" id="pagar" type="button">Apoyar con 5 €</button>
-        <a class="boton" id="enlace" href="#" rel="noopener" hidden>Apoyar el proyecto</a>
-        <p class="aviso" id="aviso" hidden></p>
-      </div>
-    </div>
-
     <div class="peli">
       <div class="marco">
         <video id="pelicula" playsinline preload="metadata" controls></video>
         <button class="play" id="play" aria-label="Ver"></button>
       </div>
       <div class="progreso">
-        <div class="pro-cab"><span id="pro-txt">Progreso del proyecto</span><strong id="pro-pct">0 %</strong></div>
+        <div class="pro-cab"><span>Progreso del proyecto</span><strong id="pro-pct">0 %</strong></div>
         <div class="barra"><div class="lleno" id="pro-lleno"></div></div>
         <div class="pro-pie" id="pro-pie"></div>
       </div>
     </div>
-  </section>
 
-  <section class="caps">
-    <div class="caps-cab">
-      <h2>Libros y capítulos</h2>
-      <p id="caps-sub"></p>
+    <div class="texto">
+      <div class="marca">Biblia Film</div>
+      <h1>Película completa <span>de la Biblia.</span></h1>
+      <p class="intro">Cada día iremos sumando contenido según vayamos recibiendo apoyo para terminar el proyecto.</p>
+
+      <div class="apoyo" id="apoyo">
+        <div class="metodos" id="metodos" role="radiogroup" aria-label="Forma de pago">
+          <button type="button" data-m="apple" aria-label="Apple Pay" hidden><svg viewBox="0 0 48 20"><rect width="48" height="20" rx="4" fill="#000"/><text x="13" y="14.6" font-family="-apple-system,Helvetica,Arial" font-size="12" fill="#fff" text-anchor="middle">&#63743;</text><text x="30" y="14" font-family="-apple-system,Helvetica,Arial" font-size="10" font-weight="600" fill="#fff" text-anchor="middle">Pay</text></svg></button>
+          <button type="button" data-m="google" aria-label="Google Pay" hidden><svg viewBox="0 0 48 20"><rect x=".5" y=".5" width="47" height="19" rx="4" fill="#fff" stroke="#d8d8dd"/><text x="15" y="14.5" font-family="Helvetica,Arial" font-size="11" font-weight="700" fill="#4285F4" text-anchor="middle">G</text><text x="31" y="14" font-family="Helvetica,Arial" font-size="10" font-weight="600" fill="#3c4043" text-anchor="middle">Pay</text></svg></button>
+          <button type="button" data-m="tarjeta" aria-label="Tarjeta"><svg viewBox="0 0 48 20"><rect x=".5" y=".5" width="47" height="19" rx="4" fill="#fff" stroke="#d8d8dd"/><text x="15" y="13.6" font-family="Helvetica,Arial" font-size="8.5" font-weight="800" font-style="italic" fill="#1a1f71" text-anchor="middle">VISA</text><circle cx="31" cy="10" r="5" fill="#eb001b"/><circle cx="37" cy="10" r="5" fill="#f79e1b" fill-opacity=".92"/></svg></button>
+        </div>
+        <div class="detalle" id="detalle" hidden>
+          <div class="importes" id="importes">
+            <button type="button" data-v="3">3 €</button>
+            <button type="button" data-v="5" class="on">5 €</button>
+            <button type="button" data-v="10">10 €</button>
+            <button type="button" data-v="20">20 €</button>
+            <label class="otro"><span>€</span><input id="otro" type="number" min="1" max="1000" step="1" placeholder="otro"></label>
+          </div>
+          <div id="tarjeta" hidden></div>
+        </div>
+        <div id="express" hidden></div>
+        <button class="boton" id="apoyar" type="button">Apoyar el proyecto</button>
+        <p class="aviso" id="aviso" hidden></p>
+      </div>
     </div>
-    <div class="libros" id="libros"></div>
-    <div class="grid" id="grid"></div>
   </section>
 </main>
 <script src="https://js.stripe.com/v3/"></script>
-<script src="app.js?v=1788563244"></script>
-<script src="apoyo.js?v=1788563244"></script>
+<script src="app.js?v=1788563690"></script>
+<script src="apoyo.js?v=1788563690"></script>
 </body>
 </html>

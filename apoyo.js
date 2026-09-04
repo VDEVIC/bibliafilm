@@ -3,36 +3,59 @@
   if (!window.Stripe) return;
   const stripe = Stripe(PK);
   const $ = id => document.getElementById(id);
-  const boton = $('pagar'), aviso = $('aviso'), otro = $('otro'), chips = [...document.querySelectorAll('#importes button')], enlace = $('enlace');
-  // si el servidor de cobros aún no está listo, se enseña el enlace de pago de Stripe
-  fetch('/api/salud').then(r=>r.json()).then(s => { if (!s.ok) throw 0; }).catch(() => { fetch('episodios.json').then(r=>r.json()).then(d => { enlace.href = d.apoyo; }); ['importes','express','tarjeta','pagar'].forEach(id => { const e=$(id); if(e) e.hidden = true; }); $('importes').style.display='none'; enlace.hidden = false; });
-  let importe = 5, elements, pago, express, listo = false, ocupado = false;
+  const boton = $('apoyar'), aviso = $('aviso'), otro = $('otro'), detalle = $('detalle'), zonaTarjeta = $('tarjeta'), zonaExpress = $('express');
+  const chips = [...document.querySelectorAll('#importes button')], metodos = [...document.querySelectorAll('#metodos button')];
+  let importe = 5, metodo = null, elements = null, pago = null, express = null, ocupado = false, servidorOk = true;
   const cts = () => Math.round(importe * 100);
   const aspecto = { theme: 'stripe', variables: { colorPrimary: '#1d1d1f', colorText: '#1d1d1f', colorBackground: '#ffffff', borderRadius: '12px', fontFamily: 'EB Garamond, Georgia, serif', fontSizeBase: '17px' } };
   const fuentes = [{ cssSrc: 'https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&display=swap' }];
 
-  function pinta(){ boton.textContent = 'Apoyar con ' + importe.toLocaleString('es-ES') + ' €'; }
+  // si el servidor de cobros no está, el botón lleva al enlace de pago de Stripe
+  fetch('/api/salud').then(r=>r.json()).then(s => { servidorOk = !!s.ok; }).catch(() => { servidorOk = false; });
+
+  // qué monederos tiene este dispositivo: se comprueba en silencio y se enseñan solo los iconos que sirven
+  (function sonda(){
+    const e = stripe.elements({ mode: 'payment', amount: 500, currency: 'eur' });
+    const sonda = e.create('expressCheckout', { paymentMethods: { link: 'never', amazonPay: 'never', paypal: 'never', klarna: 'never' } });
+    const caja = document.createElement('div'); caja.style.cssText = 'position:absolute;left:-9999px;top:0;width:300px'; document.body.appendChild(caja);
+    sonda.mount(caja);
+    sonda.on('ready', ev => {
+      const m = ev.availablePaymentMethods || {};
+      metodos.find(b => b.dataset.m === 'apple').hidden = !m.applePay;
+      metodos.find(b => b.dataset.m === 'google').hidden = !m.googlePay;
+      sonda.unmount(); caja.remove();
+    });
+    setTimeout(() => { try { sonda.unmount(); caja.remove(); } catch(_){} }, 8000);
+  })();
+
   function fija(v, desdeChip){
-    importe = Math.max(1, Math.min(1000, Number(v) || 1)); pinta();
+    importe = Math.max(1, Math.min(1000, Number(v) || 1));
     chips.forEach(b => b.classList.toggle('on', desdeChip && Number(b.dataset.v) === importe));
     if (elements) elements.update({ amount: cts() });
   }
   chips.forEach(b => b.onclick = () => { otro.value = ''; fija(b.dataset.v, true); });
   otro.oninput = () => { if (otro.value) fija(otro.value, false); };
 
-  function monta(){
-    elements = stripe.elements({ mode: 'payment', amount: cts(), currency: 'eur', appearance: aspecto, fonts: fuentes, locale: 'es' });
-    express = elements.create('expressCheckout', { buttonHeight: 48, buttonTheme: { applePay: 'black', googlePay: 'black' }, layout: { maxColumns: 2, overflow: 'never' }, paymentMethods: { amazonPay: 'never', paypal: 'never', klarna: 'never' } });
-    express.mount('#express');
-    express.on('confirm', async () => { await confirma(); });
-    pago = elements.create('payment', { layout: 'tabs', fields: { billingDetails: { name: 'never', email: 'auto', address: 'never' } }, wallets: { applePay: 'never', googlePay: 'never' } });
-    pago.mount('#tarjeta');
-    pago.on('ready', () => { listo = true; });
+  function limpia(){ if (pago) { pago.unmount(); pago = null; } if (express) { express.unmount(); express = null; } zonaTarjeta.hidden = true; zonaExpress.hidden = true; boton.hidden = false; }
+  function elige(m){
+    metodo = m; metodos.forEach(b => b.classList.toggle('on', b.dataset.m === m)); detalle.hidden = false; aviso.hidden = true; limpia();
+    elements = stripe.elements({ mode: 'payment', amount: cts(), currency: 'eur', appearance: aspecto, fonts: fuentes, locale: 'es', paymentMethodTypes: ['card'] });
+    if (m === 'tarjeta') {
+      pago = elements.create('payment', { layout: 'tabs', fields: { billingDetails: { name: 'never', email: 'auto', address: 'never' } }, wallets: { applePay: 'never', googlePay: 'never' } });
+      pago.mount(zonaTarjeta); zonaTarjeta.hidden = false;
+    } else {
+      // el botón de Apple Pay o Google Pay ocupa el sitio del botón fijo: es el único modo en que esos pagos se pueden abrir
+      express = elements.create('expressCheckout', { buttonHeight: 54, buttonTheme: { applePay: 'black', googlePay: 'black' }, layout: { maxColumns: 1, overflow: 'never' },
+        paymentMethods: { applePay: m === 'apple' ? 'always' : 'never', googlePay: m === 'google' ? 'always' : 'never', link: 'never', amazonPay: 'never', paypal: 'never', klarna: 'never' } });
+      express.mount(zonaExpress); zonaExpress.hidden = false; boton.hidden = true;
+      express.on('confirm', () => confirma());
+    }
   }
+  metodos.forEach(b => b.onclick = () => elige(b.dataset.m));
+
   async function intento(){
     const r = await fetch('/api/intento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ importe }) });
-    const j = await r.json(); if (!r.ok || !j.clientSecret) throw new Error(j.error || 'No se ha podido preparar el pago');
-    return j.clientSecret;
+    const j = await r.json(); if (!r.ok || !j.clientSecret) throw new Error(j.error || 'No se ha podido preparar el pago'); return j.clientSecret;
   }
   async function confirma(){
     if (ocupado) return; ocupado = true; aviso.hidden = true; boton.disabled = true;
@@ -44,6 +67,9 @@
     } catch (e) { aviso.textContent = e.message || 'No se ha podido completar el pago.'; aviso.hidden = false; }
     finally { ocupado = false; boton.disabled = false; }
   }
-  boton.onclick = confirma;
-  pinta(); monta();
+  boton.onclick = () => {
+    if (!servidorOk) { fetch('episodios.json').then(r=>r.json()).then(d => { location.href = d.apoyo; }); return; }
+    if (!metodo) { elige('tarjeta'); return; }
+    if (metodo === 'tarjeta') confirma();
+  };
 })();
