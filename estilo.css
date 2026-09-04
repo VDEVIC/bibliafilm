@@ -57,8 +57,8 @@ h1 span{font-style:italic;font-weight:500;color:var(--acc)}
 .metodos{display:flex;justify-content:center;gap:10px;margin-bottom:12px}
 .metodos.pide{animation:pide .5s ease}
 @keyframes pide{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
-.metodos button{width:96px;padding:9px 0;border:1px solid var(--line);border-radius:12px;background:var(--bg);cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s}
-.metodos button svg{width:60px;height:25px;display:block;margin:0 auto}
+.metodos button{flex:1;max-width:150px;padding:12px 0;border:1px solid var(--line);border-radius:14px;background:var(--bg);cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .15s}
+.metodos button svg{width:92px;height:38px;display:block;margin:0 auto}
 .metodos button.on{border-color:var(--tinta);box-shadow:0 0 0 1px var(--tinta)}
 .metodos button.no{opacity:.45}
 .metodos button:active{transform:scale(.97)}
