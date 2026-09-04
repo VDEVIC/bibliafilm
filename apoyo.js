@@ -38,7 +38,7 @@
 
   function limpia(){ if (pago) { pago.unmount(); pago = null; } if (express) { express.unmount(); express = null; } zonaTarjeta.hidden = true; zonaExpress.hidden = true; boton.hidden = false; }
   function elige(m){
-    metodo = m; metodos.forEach(b => b.classList.toggle('on', b.dataset.m === m)); detalle.hidden = false; aviso.hidden = true; limpia();
+    metodo = m; metodos.forEach(b => b.classList.toggle('on', b.dataset.m === m)); detalle.hidden = false; aviso.hidden = true; $('elige').hidden = true; limpia();
     elements = stripe.elements({ mode: 'payment', amount: cts(), currency: 'eur', appearance: aspecto, fonts: fuentes, locale: 'es', paymentMethodTypes: ['card'] });
     if (m === 'tarjeta') {
       pago = elements.create('payment', { layout: 'tabs', fields: { billingDetails: { name: 'never', email: 'auto', address: 'never' } }, wallets: { applePay: 'never', googlePay: 'never' } });
@@ -67,9 +67,10 @@
     } catch (e) { aviso.textContent = e.message || 'No se ha podido completar el pago.'; aviso.hidden = false; }
     finally { ocupado = false; boton.disabled = false; }
   }
+  const metodosCaja = $('metodos'), pide = $('elige');
   boton.onclick = () => {
     if (!servidorOk) { fetch('episodios.json').then(r=>r.json()).then(d => { location.href = d.apoyo; }); return; }
-    if (!metodo) { elige('tarjeta'); return; }
+    if (!metodo) { pide.hidden = false; metodosCaja.classList.remove('pide'); void metodosCaja.offsetWidth; metodosCaja.classList.add('pide'); metodosCaja.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
     if (metodo === 'tarjeta') confirma();
   };
 })();
