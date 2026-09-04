@@ -38,7 +38,7 @@
   function pinta(){ iconos.forEach(b => b.classList.toggle('no', disponible[b.dataset.m] === false)); }
 
   function fija(v, desdeChip){
-    importe = Math.max(1, Math.min(1000, Number(v) || 1));
+    importe = Math.max(0.5, Math.min(1000, Math.round((Number(v) || 0.5) * 100) / 100));
     chips.forEach(b => b.classList.toggle('on', desdeChip && Number(b.dataset.v) === importe));
     Object.values(els).forEach(e => e.update({ amount: cts() })); pagar.textContent = 'Apoyar con ' + eur();
   }

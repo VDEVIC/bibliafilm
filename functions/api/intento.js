@@ -1,10 +1,10 @@
-// Crea el cobro (PaymentIntent) para el apoyo. Importe libre entre 1 y 1000 €. Corre en Cloudflare Pages.
+// Crea el cobro (PaymentIntent) para el apoyo. Importe libre entre 0,50 € (mínimo de Stripe) y 1000 €. Corre en Cloudflare Pages.
 export async function onRequestPost({ request, env }) {
   const cab = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
   try {
     const { importe } = await request.json();
     const cts = Math.round(Number(importe) * 100);
-    if (!Number.isFinite(cts) || cts < 100 || cts > 100000) return new Response(JSON.stringify({ error: 'importe' }), { status: 400, headers: cab });
+    if (!Number.isFinite(cts) || cts < 50 || cts > 100000) return new Response(JSON.stringify({ error: 'importe' }), { status: 400, headers: cab });
     const cuerpo = new URLSearchParams({
       amount: String(cts), currency: 'eur', description: 'Apoyo a Biblia Film',
       'payment_method_types[0]': 'card', statement_descriptor_suffix: 'APOYO',
