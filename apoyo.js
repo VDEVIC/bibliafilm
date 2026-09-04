@@ -15,7 +15,7 @@
 
   // todo se monta al cargar la página: al pulsar el botón solo se despliega, sin esperas
   const elements = stripe.elements({ mode: 'payment', amount: cts(), currency: 'eur', appearance: aspecto, fonts: fuentes, locale: 'es', paymentMethodTypes: ['card'] });
-  const express = elements.create('expressCheckout', { buttonHeight: 48, buttonTheme: { applePay: 'black', googlePay: 'black' }, layout: { maxColumns: 2, overflow: 'never' }, paymentMethods: { amazonPay: 'never', paypal: 'never', klarna: 'never' } });
+  const express = elements.create('expressCheckout', { buttonHeight: 48, buttonTheme: { applePay: 'black', googlePay: 'black' }, layout: { maxColumns: 2, overflow: 'never' }, paymentMethods: { link: 'never', amazonPay: 'never', paypal: 'never', klarna: 'never' } });
   express.mount('#express');
   express.on('ready', ev => { const m = ev.availablePaymentMethods || {}; const hay = Object.values(m).some(Boolean); o.hidden = !hay; if (!hay) $('express').style.display = 'none'; });
   express.on('confirm', () => confirma());
