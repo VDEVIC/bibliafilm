@@ -73,7 +73,7 @@
   acepto.onchange = () => { if (acepto.checked) aviso.hidden = true; };
   boton.onclick = () => {
     if (!servidorOk) { fetch('episodios.json').then(r=>r.json()).then(d => { location.href = d.apoyo; }); return; }
-    abierto = true; abre(zonas.eligir);
+    abierto = true; abre(zonas.eligir); abre($('zMarcas'));
     marcas.classList.remove('pide'); void marcas.offsetWidth; marcas.classList.add('pide');
   };
 })();
