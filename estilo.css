@@ -74,6 +74,11 @@ h1 span{font-style:italic;font-weight:500;color:var(--acc)}
 .legalito a{color:var(--faint);text-decoration:none;border-bottom:1px solid var(--line)}
 .apoyo .boton[hidden]{display:none}
 
+@media (max-width:899px){
+  .marcas{gap:9px;padding-top:12px}
+  .marcas button{min-height:46px;padding:8px 10px;border-radius:12px}
+  .marcas img{height:19px}
+}
 @media (min-width:900px){
   .marcasCaja{grid-template-rows:1fr;opacity:1}
   main{max-width:1180px;padding:32px 56px 60px}
