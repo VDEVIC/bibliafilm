@@ -49,9 +49,9 @@ h1 span{font-style:italic;font-weight:500;color:var(--acc)}
 .aviso{margin-top:10px;font-size:15px;color:#a3362c}
 
 
-.metodos{display:flex;gap:8px;margin-bottom:12px}
-.metodos button{flex:1;padding:8px 0;border:1px solid var(--line);border-radius:12px;background:var(--bg);cursor:pointer;transition:border-color .12s,box-shadow .12s}
-.metodos button svg{width:48px;height:20px;display:block;margin:0 auto}
+.metodos{display:flex;justify-content:center;gap:10px;margin-bottom:12px}
+.metodos button{width:96px;padding:9px 0;border:1px solid var(--line);border-radius:12px;background:var(--bg);cursor:pointer;transition:border-color .12s,box-shadow .12s}
+.metodos button svg{width:60px;height:25px;display:block;margin:0 auto}
 .metodos button.on{border-color:var(--tinta);box-shadow:0 0 0 1px var(--tinta)}
 .metodos button[hidden]{display:none}
 .detalle[hidden],#tarjeta[hidden],#express[hidden]{display:none}
