@@ -22,7 +22,7 @@
 
   function monta(){
     elements = stripe.elements({ mode: 'payment', amount: cts(), currency: 'eur', appearance: aspecto, fonts: fuentes, locale: 'es' });
-    express = elements.create('expressCheckout', { buttonHeight: 48, buttonTheme: { applePay: 'black', googlePay: 'black' }, layout: { maxColumns: 2, overflow: 'never' } });
+    express = elements.create('expressCheckout', { buttonHeight: 48, buttonTheme: { applePay: 'black', googlePay: 'black' }, layout: { maxColumns: 2, overflow: 'never' }, paymentMethods: { amazonPay: 'never', paypal: 'never', klarna: 'never' } });
     express.mount('#express');
     express.on('confirm', async () => { await confirma(); });
     pago = elements.create('payment', { layout: 'tabs', fields: { billingDetails: { name: 'never', email: 'auto', address: 'never' } }, wallets: { applePay: 'never', googlePay: 'never' } });
