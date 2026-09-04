@@ -17,17 +17,19 @@
   fetch('/api/salud').then(r=>r.json()).then(s => { servidorOk = !!s.ok; }).catch(() => { servidorOk = false; });
 
   // todo precargado: cada forma de pago vive en su propia caja plegada y solo se abre la elegida
-  const elements = stripe.elements({ mode: 'payment', amount: cts(), currency: 'eur', appearance: aspecto, fonts: fuentes, locale: 'es', paymentMethodTypes: ['card'] });
+  // (Stripe solo admite un botón exprés por instancia, así que Apple Pay, Google Pay y tarjeta van cada uno en la suya)
+  const base = { mode: 'payment', currency: 'eur', appearance: aspecto, fonts: fuentes, locale: 'es', paymentMethodTypes: ['card'] };
   const nunca = { link: 'never', amazonPay: 'never', paypal: 'never', klarna: 'never' };
-  const exApple = elements.create('expressCheckout', { buttonHeight: 54, buttonTheme: { applePay: 'black' }, layout: { maxColumns: 1, overflow: 'never' }, paymentMethods: Object.assign({ applePay: 'always', googlePay: 'never' }, nunca) });
+  const els = { apple: stripe.elements(Object.assign({ amount: cts() }, base)), google: stripe.elements(Object.assign({ amount: cts() }, base)), tarjeta: stripe.elements(Object.assign({ amount: cts() }, base)) };
+  const exApple = els.apple.create('expressCheckout', { buttonHeight: 54, buttonTheme: { applePay: 'black' }, layout: { maxColumns: 1, overflow: 'never' }, paymentMethods: Object.assign({ applePay: 'always', googlePay: 'never' }, nunca) });
   exApple.mount('#expressApple');
   exApple.on('ready', ev => { disponible.apple = !!(ev.availablePaymentMethods||{}).applePay; pinta(); });
   exApple.on('confirm', () => confirma());
-  const exGoogle = elements.create('expressCheckout', { buttonHeight: 54, buttonTheme: { googlePay: 'black' }, layout: { maxColumns: 1, overflow: 'never' }, paymentMethods: Object.assign({ applePay: 'never', googlePay: 'always' }, nunca) });
+  const exGoogle = els.google.create('expressCheckout', { buttonHeight: 54, buttonTheme: { googlePay: 'black' }, layout: { maxColumns: 1, overflow: 'never' }, paymentMethods: Object.assign({ applePay: 'never', googlePay: 'always' }, nunca) });
   exGoogle.mount('#expressGoogle');
   exGoogle.on('ready', ev => { disponible.google = !!(ev.availablePaymentMethods||{}).googlePay; pinta(); });
   exGoogle.on('confirm', () => confirma());
-  const pago = elements.create('payment', { layout: 'tabs', wallets: { applePay: 'never', googlePay: 'never' } });
+  const pago = els.tarjeta.create('payment', { layout: 'tabs', wallets: { applePay: 'never', googlePay: 'never' } });
   pago.mount('#tarjeta');
   setTimeout(() => { if (disponible.apple === null) disponible.apple = false; if (disponible.google === null) disponible.google = false; pinta(); }, 8000);
   function pinta(){ iconos.forEach(b => b.classList.toggle('no', disponible[b.dataset.m] === false)); }
@@ -35,7 +37,7 @@
   function fija(v, desdeChip){
     importe = Math.max(1, Math.min(1000, Number(v) || 1));
     chips.forEach(b => b.classList.toggle('on', desdeChip && Number(b.dataset.v) === importe));
-    elements.update({ amount: cts() }); pagar.textContent = 'Apoyar con ' + eur();
+    Object.values(els).forEach(e => e.update({ amount: cts() })); pagar.textContent = 'Apoyar con ' + eur();
   }
   chips.forEach(b => b.onclick = () => { otro.value = ''; fija(b.dataset.v, true); });
   otro.oninput = () => { if (otro.value) fija(otro.value, false); };
@@ -56,6 +58,7 @@
   async function confirma(){
     if (ocupado) return; ocupado = true; aviso.hidden = true; pagar.disabled = true;
     try {
+      const elements = els[metodo || 'tarjeta'];
       const { error: e1 } = await elements.submit(); if (e1) throw e1;
       const clientSecret = await intento();
       const { error } = await stripe.confirmPayment({ elements, clientSecret, confirmParams: { return_url: location.origin + '/gracias.html' } });
