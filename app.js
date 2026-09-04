@@ -1,7 +1,7 @@
 (async function(){
   const d = await fetch('episodios.json?'+Date.now()).then(r=>r.json());
   const cdn = d.cdn.replace(/\/$/,'');
-  const url = p => p ? (p.startsWith('http') ? p : cdn+'/'+p) : '';
+  const url = p => p ? ((p.startsWith('http') || p.startsWith('./') || p.startsWith('/')) ? p : cdn+'/'+p) : '';
   const hechos = d.episodios.filter(e=>e.video);
   const ultimo = hechos[hechos.length-1];
   const libro = d.libro || 'Génesis';
