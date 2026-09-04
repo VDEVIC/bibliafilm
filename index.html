@@ -13,11 +13,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=1788563790">
+<link rel="stylesheet" href="estilo.css?v=1788563821">
 </head>
 <body>
 <main>
   <section class="hero">
+    <header class="cabecera">
+      <div class="marca">Biblia Film</div>
+      <h1>Película completa <span>de la Biblia.</span></h1>
+      <p class="intro">Cada día iremos sumando contenido según vayamos recibiendo apoyo para terminar el proyecto.</p>
+
+    </header>
     <div class="peli">
       <div class="marco">
         <video id="pelicula" playsinline preload="metadata" controls></video>
@@ -31,10 +37,6 @@
     </div>
 
     <div class="texto">
-      <div class="marca">Biblia Film</div>
-      <h1>Película completa <span>de la Biblia.</span></h1>
-      <p class="intro">Cada día iremos sumando contenido según vayamos recibiendo apoyo para terminar el proyecto.</p>
-
       <div class="apoyo" id="apoyo">
         <div class="metodos" id="metodos" role="radiogroup" aria-label="Forma de pago">
           <button type="button" data-m="apple" aria-label="Apple Pay" hidden><svg viewBox="0 0 48 20"><rect width="48" height="20" rx="4" fill="#000"/><text x="13" y="14.6" font-family="-apple-system,Helvetica,Arial" font-size="12" fill="#fff" text-anchor="middle">&#63743;</text><text x="30" y="14" font-family="-apple-system,Helvetica,Arial" font-size="10" font-weight="600" fill="#fff" text-anchor="middle">Pay</text></svg></button>
@@ -59,7 +61,7 @@
   </section>
 </main>
 <script src="https://js.stripe.com/v3/"></script>
-<script src="app.js?v=1788563790"></script>
-<script src="apoyo.js?v=1788563790"></script>
+<script src="app.js?v=1788563821"></script>
+<script src="apoyo.js?v=1788563821"></script>
 </body>
 </html>
