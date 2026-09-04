@@ -80,7 +80,6 @@ h1 span{font-style:italic;font-weight:500;color:var(--acc)}
   .marcas img{height:19px}
 }
 @media (min-width:900px){
-  .marcasCaja{grid-template-rows:1fr;opacity:1}
   main{max-width:1180px;padding:32px 56px 60px}
   .hero{display:block}
   .peli{margin:0 auto;width:min(100%, calc(64vh * 16 / 9))}
