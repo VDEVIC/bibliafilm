@@ -1,4 +1,8 @@
 (async function(){
+  // la página siempre arranca arriba del todo (el móvil a veces guarda un scroll anterior o lo mueven los iframes de pago)
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  const arriba = () => window.scrollTo(0, 0);
+  arriba(); [200, 600, 1200].forEach(t => setTimeout(arriba, t));
   const $ = id => document.getElementById(id);
   const [d, biblia, prog] = await Promise.all([
     fetch('episodios.json?'+Date.now()).then(r=>r.json()),

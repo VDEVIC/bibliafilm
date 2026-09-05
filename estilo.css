@@ -7,7 +7,7 @@
   --txt:"EB Garamond","Iowan Old Style",Palatino,Georgia,serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{background:var(--bg);color-scheme:light;scroll-behavior:smooth}
+html{background:var(--bg);color-scheme:light}
 body{background:var(--bg);color:var(--tinta);font-family:var(--txt);font-size:19px;line-height:1.5;-webkit-font-smoothing:antialiased}
 main{max-width:560px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top)) 18px calc(48px + env(safe-area-inset-bottom))}
 .cabecera{text-align:center}
