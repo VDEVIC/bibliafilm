@@ -10,7 +10,7 @@
  "total": 456,
  "pelicula": {
   "video": "",
-  "poster": "./media/portada.jpg",
+  "poster": "./media/portada.jpg?v=1788568392",
   "minutos": 0
  },
  "episodios": [
