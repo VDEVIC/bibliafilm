@@ -1,6 +1,6 @@
 (function(){
   const PK = 'pk_live_51UC5QCAeAJ1ecB8ZIMliN6fE9geFRi0kGrT80F07h1ZalAnsnvby7QQ8xncdWgHEy3n2ZRNHnescnqOv2te3P1Z600ZWdeNwnl';
-  if (!window.Stripe) return;
+  if (!window.Stripe || new URLSearchParams(location.search).has('sinpagos')) return;
   const stripe = Stripe(PK);
   const $ = id => document.getElementById(id);
   const boton = $('apoyar'), pagar = $('pagar'), aviso = $('aviso'), otro = $('otro'), marcas = $('marcas');
@@ -15,6 +15,7 @@
   const fuentes = [{ cssSrc: 'https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&display=swap' }];
   const abre = z => z.classList.add('abierto'), cierra = z => z.classList.remove('abierto');
   function nota(t, suave){ aviso.textContent = t; aviso.classList.toggle('suave', !!suave); aviso.hidden = false; }
+  window.addEventListener('idioma', ev => { const con = {es:'Apoyar con',en:'Support with',pt:'Apoiar com',fr:'Soutenir avec',de:'Unterstützen mit',zh:'支持',ru:'Поддержать на'}[ev.detail] || 'Apoyar con'; window.__con = con; pagar.textContent = con + ' ' + eur(); });
   fetch('/api/salud').then(r=>r.json()).then(s => { servidorOk = !!s.ok; }).catch(() => { servidorOk = false; });
 
   // todo precargado: cada forma de pago vive en su propia caja plegada y solo se abre la elegida
@@ -24,23 +25,23 @@
   const els = { apple: stripe.elements(Object.assign({ amount: cts() }, base)), google: stripe.elements(Object.assign({ amount: cts() }, base)), tarjeta: stripe.elements(Object.assign({ amount: cts() }, base)) };
   const exApple = els.apple.create('expressCheckout', { buttonHeight: 54, buttonTheme: { applePay: 'black' }, layout: { maxColumns: 1, overflow: 'never' }, paymentMethods: Object.assign({ applePay: 'always', googlePay: 'never' }, nunca) });
   exApple.mount('#expressApple');
-  exApple.on('ready', ev => { disponible.apple = !!(ev.availablePaymentMethods||{}).applePay; pinta(); });
+  exApple.on('ready', ev => { disponible.apple = !!(ev.availablePaymentMethods||{}).applePay; pinta(); window.__arriba && window.__arriba(); });
   exApple.on('click', ev => { if (aceptado()) ev.resolve(); });
   exApple.on('confirm', () => confirma());
   const exGoogle = els.google.create('expressCheckout', { buttonHeight: 54, buttonTheme: { googlePay: 'black' }, layout: { maxColumns: 1, overflow: 'never' }, paymentMethods: Object.assign({ applePay: 'never', googlePay: 'always' }, nunca) });
   exGoogle.mount('#expressGoogle');
-  exGoogle.on('ready', ev => { disponible.google = !!(ev.availablePaymentMethods||{}).googlePay; pinta(); });
+  exGoogle.on('ready', ev => { disponible.google = !!(ev.availablePaymentMethods||{}).googlePay; pinta(); window.__arriba && window.__arriba(); });
   exGoogle.on('click', ev => { if (aceptado()) ev.resolve(); });
   exGoogle.on('confirm', () => confirma());
   const pago = els.tarjeta.create('payment', { layout: 'tabs', wallets: { applePay: 'never', googlePay: 'never' } });
-  pago.mount('#tarjeta');
+  pago.mount('#tarjeta'); pago.on('ready', () => { window.__arriba && window.__arriba(); });
   setTimeout(() => { if (disponible.apple === null) disponible.apple = false; if (disponible.google === null) disponible.google = false; pinta(); }, 8000);
   function pinta(){ iconos.forEach(b => b.classList.toggle('no', disponible[b.dataset.m] === false)); }
 
   function fija(v, desdeChip){
     importe = Math.max(0.5, Math.min(1000, Math.round((Number(v) || 0.5) * 100) / 100));
     chips.forEach(b => b.classList.toggle('on', desdeChip && Number(b.dataset.v) === importe));
-    Object.values(els).forEach(e => e.update({ amount: cts() })); pagar.textContent = 'Apoyar con ' + eur();
+    Object.values(els).forEach(e => e.update({ amount: cts() })); pagar.textContent = (window.__con || 'Apoyar con') + ' ' + eur();
   }
   chips.forEach(b => b.onclick = () => { otro.value = ''; fija(b.dataset.v, true); });
   otro.oninput = () => { if (otro.value) fija(otro.value, false); };

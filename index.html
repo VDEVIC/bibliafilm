@@ -13,15 +13,18 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilo.css?v=1788566751">
+<link rel="stylesheet" href="estilo.css?v=1788567503">
 </head>
 <body>
 <main>
   <section class="hero">
     <header class="cabecera">
+      <select class="idioma" id="idioma" aria-label="Idioma">
+        <option value="es">Español</option><option value="en">English</option><option value="pt">Português</option><option value="fr">Français</option><option value="de">Deutsch</option><option value="zh">中文</option><option value="ru">Русский</option>
+      </select>
       <div class="marca">Biblia Film</div>
-      <h1>Película completa <span>de la Biblia.</span></h1>
-      <p class="intro">Cada día iremos sumando contenido según vayamos recibiendo apoyo para terminar el proyecto.</p>
+      <h1 id="t-titulo">Película completa <span>de la Biblia.</span></h1>
+      <p class="intro" id="t-intro">Cada día iremos sumando contenido según vayamos recibiendo apoyo para terminar el proyecto.</p>
 
     </header>
     <div class="peli">
@@ -30,7 +33,7 @@
         <button class="play" id="play" aria-label="Ver"></button>
       </div>
       <div class="progreso">
-        <div class="pro-cab"><span>Progreso del proyecto</span><strong id="pro-pct">0 %</strong></div>
+        <div class="pro-cab"><span id="t-progreso">Progreso del proyecto</span><strong id="pro-pct">0 %</strong></div>
         <div class="barra"><div class="lleno" id="pro-lleno"></div></div>
         <div class="pro-pie" id="pro-pie"></div>
       </div>
@@ -39,7 +42,7 @@
     <div class="texto">
       <div class="apoyo" id="apoyo">
         <button class="boton" id="apoyar" type="button">Apoyar el proyecto</button>
-        <div class="desplegable" id="zEligir"><div><p class="elige">Elige el método de pago</p></div></div>
+        <div class="desplegable" id="zEligir"><div><p class="elige" id="t-elige">Elige el método de pago</p></div></div>
         <div class="desplegable marcasCaja" id="zMarcas"><div><div class="marcas" id="marcas" role="radiogroup" aria-label="Forma de pago">
           <button type="button" data-m="apple" aria-label="Apple Pay"><img src="img/apple-pay.svg" alt=""></button>
           <button type="button" data-m="google" aria-label="Google Pay"><img src="img/google-pay.svg" alt=""></button>
@@ -53,7 +56,7 @@
             <button type="button" data-v="20">20 €</button>
             <label class="otro"><span>€</span><input id="otro" type="number" min="0.5" max="1000" step="0.5" placeholder="otro" inputmode="decimal"></label>
           </div>
-          <label class="acepto"><input type="checkbox" id="acepto"><span>He leído y acepto las <a href="/condiciones" target="_blank" rel="noopener">condiciones del apoyo</a>.</span></label>
+          <label class="acepto"><input type="checkbox" id="acepto"><span id="t-acepto">He leído y acepto las <a href="/condiciones" target="_blank" rel="noopener">condiciones del apoyo</a>.</span></label>
         </div></div>
         <div class="desplegable" id="zApple"><div class="detalle-int"><div id="expressApple"></div></div></div>
         <div class="desplegable" id="zGoogle"><div class="detalle-int"><div id="expressGoogle"></div></div></div>
@@ -63,8 +66,9 @@
     </div>
   </section>
 </main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js"></script>
 <script src="https://js.stripe.com/v3/"></script>
-<script src="app.js?v=1788566751"></script>
-<script src="apoyo.js?v=1788566751"></script>
+<script src="app.js?v=1788567503"></script>
+<script src="apoyo.js?v=1788567503"></script>
 </body>
 </html>
