@@ -6,11 +6,12 @@
   const arriba = () => { if (!window.__tocado && !window.__diag) window.scrollTo(0, 0); }; window.__arriba = arriba;
   arriba(); [150, 500, 1000, 2000, 3500, 5000].forEach(t => setTimeout(arriba, t));
   if (window.__diag) { // diagnóstico: apunta en pantalla cada movimiento de la página y quién tiene el foco
-    const L = []; window.__log = m => { L.push(Math.round(performance.now()) + 'ms ' + m); const a = document.getElementById('aviso'); if (a) { a.hidden = false; a.style.cssText = 'font:12px monospace;text-align:left;white-space:pre-wrap;color:#1d1d1f'; a.textContent = L.join('\n'); } };
+    const L = []; window.__log = m => { L.push(Math.round(performance.now()) + 'ms ' + m); const a = document.getElementById('aviso'); if (a) { a.hidden = false; a.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9;background:rgba(255,255,255,.92);font:11px/1.3 monospace;text-align:left;white-space:pre-wrap;color:#1d1d1f;padding:4px'; a.textContent = L.join('\n'); } };
     const ae = () => { const e = document.activeElement; return e ? e.tagName + '#' + e.id + '.' + String(e.className).split(' ')[0] : '-'; };
     addEventListener('scroll', () => window.__log('scroll y=' + Math.round(scrollY) + ' foco=' + ae()), { passive: true });
     addEventListener('focusin', ev => window.__log('focusin ' + ev.target.tagName + '#' + ev.target.id));
-    [0, 1000, 3000, 6000].forEach(t => setTimeout(() => window.__log('t y=' + Math.round(scrollY) + ' alto=' + document.documentElement.scrollHeight + '/' + innerHeight + ' foco=' + ae()), t));
+    const medida = () => { const h = s => { const e = document.querySelector(s); return e ? Math.round(e.getBoundingClientRect().height) : '-'; }; const fondo = s => { const e = document.querySelector(s); return e ? Math.round(e.getBoundingClientRect().bottom + scrollY) : '-'; }; return 'alto=' + document.documentElement.scrollHeight + '/' + innerHeight + ' main=' + h('main') + ' apoyoFin=' + fondo('.apoyo') + ' botonFin=' + fondo('#apoyar') + ' zonas=' + ['#zEligir','#zMarcas','#zImportes','#zApple','#zGoogle','#zTarjeta'].map(h).join(',') + ' iframes=' + [...document.querySelectorAll('iframe')].map(f => Math.round(f.getBoundingClientRect().height)).join(','); };
+    [0, 1000, 3000, 6000].forEach(t => setTimeout(() => window.__log('t y=' + Math.round(scrollY) + ' ' + medida() + ' foco=' + ae()), t));
   }
   const $ = id => document.getElementById(id);
   const [d, biblia, prog] = await Promise.all([
