@@ -1,18 +1,4 @@
 (async function(){
-  // la página siempre arranca arriba del todo (el móvil a veces guarda un scroll anterior o lo mueven los iframes de pago)
-  const Q = new URLSearchParams(location.search); window.__diag = Q.has('diag');
-  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-  window.__tocado = false; ['touchstart','wheel','keydown','pointerdown'].forEach(e => addEventListener(e, () => { window.__tocado = true; }, { passive: true, once: true }));
-  const arriba = () => { if (!window.__tocado && !window.__diag) window.scrollTo(0, 0); }; window.__arriba = arriba;
-  arriba(); [150, 500, 1000, 2000, 3500, 5000].forEach(t => setTimeout(arriba, t));
-  if (window.__diag) { // diagnóstico: apunta en pantalla cada movimiento de la página y quién tiene el foco
-    const L = []; window.__log = m => { L.push(Math.round(performance.now()) + 'ms ' + m); const a = document.getElementById('aviso'); if (a) { a.hidden = false; a.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9;background:rgba(255,255,255,.92);font:11px/1.3 monospace;text-align:left;white-space:pre-wrap;color:#1d1d1f;padding:4px'; a.textContent = L.join('\n'); } };
-    const ae = () => { const e = document.activeElement; return e ? e.tagName + '#' + e.id + '.' + String(e.className).split(' ')[0] : '-'; };
-    addEventListener('scroll', () => window.__log('scroll y=' + Math.round(scrollY) + ' foco=' + ae()), { passive: true });
-    addEventListener('focusin', ev => window.__log('focusin ' + ev.target.tagName + '#' + ev.target.id));
-    const medida = () => { const h = s => { const e = document.querySelector(s); return e ? Math.round(e.getBoundingClientRect().height) : '-'; }; const fondo = s => { const e = document.querySelector(s); return e ? Math.round(e.getBoundingClientRect().bottom + scrollY) : '-'; }; return 'alto=' + document.documentElement.scrollHeight + '/' + innerHeight + ' main=' + h('main') + ' apoyoFin=' + fondo('.apoyo') + ' botonFin=' + fondo('#apoyar') + ' zonas=' + ['#zEligir','#zMarcas','#zImportes','#zApple','#zGoogle','#zTarjeta'].map(h).join(',') + ' iframes=' + [...document.querySelectorAll('iframe')].map(f => Math.round(f.getBoundingClientRect().height)).join(','); };
-    [0, 1000, 3000, 6000].forEach(t => setTimeout(() => window.__log('t y=' + Math.round(scrollY) + ' ' + medida() + ' foco=' + ae()), t));
-  }
   const $ = id => document.getElementById(id);
   const [d, biblia, prog] = await Promise.all([
     fetch('episodios.json?'+Date.now()).then(r=>r.json()),
@@ -61,7 +47,7 @@
     if (hls) { const i = hls.subtitleTracks.findIndex(t => t.lang === l); hls.subtitleTrack = (l === 'es') ? -1 : i; return; }
     [...v.textTracks].forEach(tt => { tt.mode = (l !== 'es' && tt.language === l) ? 'showing' : 'disabled'; });
   }
-  if (d.pelicula.video && !Q.has('sinvideo')) {
+  if (d.pelicula.video) {
     const src = url(d.pelicula.video);
     if (src.endsWith('.m3u8') && window.Hls && Hls.isSupported()) {
       hls = new Hls({ enableWebVTT: true }); hls.loadSource(src); hls.attachMedia(v);
