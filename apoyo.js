@@ -25,16 +25,16 @@
   const els = { apple: stripe.elements(Object.assign({ amount: cts() }, base)), google: stripe.elements(Object.assign({ amount: cts() }, base)), tarjeta: stripe.elements(Object.assign({ amount: cts() }, base)) };
   const exApple = els.apple.create('expressCheckout', { buttonHeight: 54, buttonTheme: { applePay: 'black' }, layout: { maxColumns: 1, overflow: 'never' }, paymentMethods: Object.assign({ applePay: 'always', googlePay: 'never' }, nunca) });
   exApple.mount('#expressApple');
-  exApple.on('ready', ev => { disponible.apple = !!(ev.availablePaymentMethods||{}).applePay; pinta(); window.__arriba && window.__arriba(); });
+  exApple.on('ready', ev => { disponible.apple = !!(ev.availablePaymentMethods||{}).applePay; pinta(); window.__arriba && window.__arriba(); window.__log && window.__log('apple ready ' + JSON.stringify(ev.availablePaymentMethods)); });
   exApple.on('click', ev => { if (aceptado()) ev.resolve(); });
   exApple.on('confirm', () => confirma());
   const exGoogle = els.google.create('expressCheckout', { buttonHeight: 54, buttonTheme: { googlePay: 'black' }, layout: { maxColumns: 1, overflow: 'never' }, paymentMethods: Object.assign({ applePay: 'never', googlePay: 'always' }, nunca) });
   exGoogle.mount('#expressGoogle');
-  exGoogle.on('ready', ev => { disponible.google = !!(ev.availablePaymentMethods||{}).googlePay; pinta(); window.__arriba && window.__arriba(); });
+  exGoogle.on('ready', ev => { disponible.google = !!(ev.availablePaymentMethods||{}).googlePay; pinta(); window.__arriba && window.__arriba(); window.__log && window.__log('google ready ' + JSON.stringify(ev.availablePaymentMethods)); });
   exGoogle.on('click', ev => { if (aceptado()) ev.resolve(); });
   exGoogle.on('confirm', () => confirma());
   const pago = els.tarjeta.create('payment', { layout: 'tabs', wallets: { applePay: 'never', googlePay: 'never' } });
-  pago.mount('#tarjeta'); pago.on('ready', () => { window.__arriba && window.__arriba(); });
+  pago.mount('#tarjeta'); pago.on('ready', () => { window.__arriba && window.__arriba(); window.__log && window.__log('tarjeta ready'); });
   setTimeout(() => { if (disponible.apple === null) disponible.apple = false; if (disponible.google === null) disponible.google = false; pinta(); }, 8000);
   function pinta(){ iconos.forEach(b => b.classList.toggle('no', disponible[b.dataset.m] === false)); }
 
