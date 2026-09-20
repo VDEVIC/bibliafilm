@@ -9,9 +9,9 @@
  },
  "total": 456,
  "pelicula": {
-  "video": "pelicula.mp4?v=clip4",
+  "video": "pelicula.mp4?v=clip5",
   "poster": "./media/portada.jpg?v=1788568392",
-  "minutos": 1.9
+  "minutos": 2.4
  },
  "episodios": [
   {
