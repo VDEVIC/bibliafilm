@@ -4,14 +4,13 @@
  "apoyo": "https://buy.stripe.com/9B6cN4foXer38IE9qp6sw00",
  "redes": {
   "TikTok": "https://www.tiktok.com/@bibliafilm",
-  "Instagram": "https://www.instagram.com/bibliafilm",
   "YouTube": "https://www.youtube.com/@bibliafilm"
  },
  "total": 456,
  "pelicula": {
-  "video": "pelicula.mp4?v=clip5",
+  "video": "pelicula.mp4?v=clip7",
   "poster": "./media/portada.jpg?v=1789942878",
-  "minutos": 2.4
+  "minutos": 3.4
  },
  "episodios": [
   {
