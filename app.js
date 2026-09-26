@@ -39,23 +39,42 @@
   }
   sel.onchange = () => { lang = sel.value; try { localStorage.setItem('idioma', lang); } catch(_){} aplica(); };
 
-  // la película: emisión por trozos (HLS). Safari la lee sola; el resto con hls.js
+  // la película: emisión por trozos y en 3 calidades (HLS) desde el almacén; cada móvil coge la que aguanta su cobertura.
+  // Safari la lee sola. El resto usa hls.js, que se prepara en un rato libre tras cargar la página (nunca estorba a la página)
+  // y deja 6 s adelantados, así al tocar reproducir arranca al instante. Nunca se sirve el archivo original entero.
   const v = $('pelicula'), play = $('play');
-  let hls = null;
+  const HLSJS = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js';
+  let hls = null, listo = null, cargando = false;
   v.poster = url(d.pelicula.poster);
   function subtitulos(l){
-    if (hls) { const i = hls.subtitleTracks.findIndex(t => t.lang === l); hls.subtitleTrack = (l === 'es') ? -1 : i; return; }
+    if (hls) { const i = (hls.subtitleTracks || []).findIndex(t => t.lang === l); hls.subtitleTrack = (l === 'es') ? -1 : i; return; }
     [...v.textTracks].forEach(tt => { tt.mode = (l !== 'es' && tt.language === l) ? 'showing' : 'disabled'; });
   }
-  if (d.pelicula.video) {
-    const src = url(d.pelicula.video);
-    if (src.endsWith('.m3u8') && window.Hls && Hls.isSupported()) {
-      hls = new Hls({ enableWebVTT: true }); hls.loadSource(src); hls.attachMedia(v);
-      hls.on(Hls.Events.MANIFEST_PARSED, () => subtitulos(lang));
-    } else { v.src = src; v.addEventListener('loadedmetadata', () => subtitulos(lang), { once: true }); }
+  const src = d.pelicula.video ? url(d.pelicula.video) : '';
+  const esHls = /\.m3u8(\?|$)/.test(src);
+  const nativo = esHls && v.canPlayType('application/vnd.apple.mpegurl');
+  const mp4 = d.pelicula.mp4 ? url(d.pelicula.mp4) : (esHls ? '' : src);
+  const HLSJS_SRI = 'sha512-laeOywAR8veaLuF0pnbe9aXnZF0OhY25VdUkVgeRDUezc5IB1XVvqNYASMEVLh2nFvLEX/MStxGvpaNoVH6hRQ==';
+  const guion = u => new Promise((ok, ko) => { const s = document.createElement('script'); s.src = u; s.integrity = HLSJS_SRI; s.crossOrigin = 'anonymous'; s.onload = ok; s.onerror = () => { s.remove(); ko(Error('hls.js')); }; document.head.append(s); });
+  function directo(){ if (hls) { hls.destroy(); hls = null; } if (mp4) { v.src = mp4; v.addEventListener('loadedmetadata', () => subtitulos(lang), { once: true }); } }
+  async function prepara(){
+    if (!esHls || nativo) { v.src = src; v.addEventListener('loadedmetadata', () => subtitulos(lang), { once: true }); return; }
+    try { if (!window.Hls) await guion(HLSJS); } catch(_) { directo(); return; }
+    if (!Hls.isSupported()) { directo(); return; }
+    // en reposo solo se adelantan 6 s (como hace Safari con preload="metadata"); al reproducir, 30 s
+    hls = new Hls({ enableWebVTT: true, maxBufferLength: 6 });
+    hls.on(Hls.Events.MANIFEST_PARSED, () => subtitulos(lang));
+    hls.on(Hls.Events.ERROR, (_, e) => { if (e.fatal) { const seguia = !v.paused; directo(); if (seguia) v.play().catch(()=>{}); } });
+    hls.loadSource(src); hls.attachMedia(v);
+  }
+  function arranca(){ if (hls && !cargando) { cargando = true; hls.config.maxBufferLength = 30; hls.startLoad(); } }
+  if (src) {
+    const enRatoLibre = () => { if (navigator.connection && navigator.connection.saveData) return; (window.requestIdleCallback || (f => setTimeout(f, 200)))(() => { if (!listo) listo = prepara(); }); };
+    if (document.readyState === 'complete') enRatoLibre(); else window.addEventListener('load', enRatoLibre, { once: true });
   } else { play.hidden = true; v.removeAttribute('controls'); }
   aplica();
-  play.onclick = () => { play.hidden = true; v.play(); };
+  play.onclick = async () => { play.hidden = true; try { await (listo || (listo = prepara())); arranca(); await v.play(); } catch(_) { play.hidden = false; } };
+  v.addEventListener('play', () => { play.hidden = true; if (!listo) listo = prepara(); listo.then(arranca); });
   v.addEventListener('pause', ()=>{ if (!v.ended) play.hidden = false; });
   v.addEventListener('ended', ()=>{ play.hidden = false; });
 })();

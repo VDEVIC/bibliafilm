@@ -1,0 +1,16 @@
+# Cabeceras de entrega de bibliafilm.com (Cloudflare Pages).
+# css/js van con ?v=… (publicar.sh cambia la versión en cada publicación): pueden guardarse un año.
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+# imágenes: una semana (no llevan versión en el nombre)
+/img/*
+  Cache-Control: public, max-age=604800
+/nuevo/assets/*
+  Cache-Control: public, max-age=604800
+/media/*
+  Cache-Control: public, max-age=604800
+# los datos se leen siempre frescos (la web los pide con ?fecha)
+/*.json
+  Cache-Control: no-cache
