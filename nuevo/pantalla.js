@@ -1,41 +1,10 @@
 'use strict';
 const $ = selector => document.querySelector(selector);
-const video = $('#film');
-const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
-const mayAutoplay = !reduceMotion.matches && !navigator.connection?.saveData;
+const filmLink = $('#film-link');
+const smallScreen = matchMedia('(max-width: 850px)').matches || navigator.connection?.saveData;
+filmLink.href = smallScreen ? '/nuevo/assets/genesis-ligero.mp4?v=4' : '/nuevo/assets/genesis-movil.mp4?v=4';
 const views = ['pelicula', 'proyecto', 'apoyar'];
-let activeView = 'pelicula', videoVisible = true, resumeWhenVisible = false;
-let filmPrepared = false, viewInitialized = false, autoplayBlocked = false;
-
-function playFilm() {
-  video.play().catch(error => {
-    if (error.name === 'NotAllowedError') {
-      autoplayBlocked = true;
-      updateSound();
-    } else if (error.name !== 'AbortError') {
-      $('#film-error').hidden = false;
-    }
-  });
-}
-
-function prepareFilm() {
-  if (filmPrepared) return;
-  filmPrepared = true;
-  const smallScreen = matchMedia('(max-width: 850px)').matches || navigator.connection?.saveData;
-  video.src = smallScreen ? '/nuevo/assets/genesis-ligero.mp4?v=4' : '/nuevo/assets/genesis-movil.mp4?v=4';
-  video.preload = mayAutoplay ? 'metadata' : 'none';
-  if (mayAutoplay) playFilm();
-}
-
-function pauseForVisibility() {
-  if (!video.paused) { resumeWhenVisible = true; video.pause(); }
-}
-function resumeVideo() {
-  if (resumeWhenVisible && activeView === 'pelicula' && videoVisible && !document.hidden) {
-    resumeWhenVisible = false;
-    playFilm();
-  }
-}
+let activeView = 'pelicula', viewInitialized = false;
 function viewFromHash() {
   const hash = location.hash.slice(1);
   return hash === 'aportacion' || hash === 'apoyar-proyecto' ? 'apoyar' : views.includes(hash) ? hash : 'pelicula';
@@ -43,7 +12,6 @@ function viewFromHash() {
 function showView(name, updateURL = true, resetScroll = true) {
   if (!views.includes(name)) return;
   if (viewInitialized && name === activeView) return;
-  if (name !== 'pelicula') pauseForVisibility();
   activeView = name;
   viewInitialized = true;
   for (const view of views) {
@@ -55,7 +23,7 @@ function showView(name, updateURL = true, resetScroll = true) {
   }
   if (updateURL && location.hash !== '#' + name) history.pushState(null, '', '#' + name);
   if (resetScroll) window.scrollTo({top: 0, behavior: 'instant'});
-  if (name === 'pelicula') { measureRail(); prepareFilm(); resumeVideo(); }
+  if (name === 'pelicula') measureRail();
 }
 document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', event => {
   event.preventDefault();
@@ -99,7 +67,7 @@ function updateRail() {
   railHint.textContent = fits ? 'Palabra, creación y comunidad.' : 'Desliza para descubrir más';
 }
 function scrollRail(direction) {
-  rail.scrollBy({left: railStep * direction, behavior: reduceMotion.matches ? 'instant' : 'smooth'});
+  rail.scrollBy({left: railStep * direction, behavior: 'instant'});
 }
 $('#rail-prev').addEventListener('click', () => scrollRail(-1));
 $('#rail-next').addEventListener('click', () => scrollRail(1));
@@ -112,41 +80,14 @@ if ('onscrollend' in rail) rail.addEventListener('scrollend', updateRail, {passi
 else rail.addEventListener('scroll', () => { clearTimeout(railTimer); railTimer = setTimeout(updateRail, 160); }, {passive: true});
 new ResizeObserver(measureRail).observe(rail);
 
-function updateSound() {
-  $('#sound-toggle').setAttribute('aria-pressed', String(!video.muted));
-  $('#sound-label').textContent = autoplayBlocked ? 'Reproducir' : video.muted ? 'Activar sonido' : 'Silenciar';
-}
-$('#sound-toggle').addEventListener('click', () => {
-  if (autoplayBlocked) { playFilm(); return; }
-  video.muted = !video.muted;
-  updateSound();
-  if (video.paused) playFilm();
-});
-video.addEventListener('volumechange', updateSound);
-video.addEventListener('playing', () => {
-  autoplayBlocked = false;
-  updateSound();
-  $('#film-error').hidden = true;
-  if (activeView !== 'pelicula' || !videoVisible || document.hidden) pauseForVisibility();
-});
-video.addEventListener('ended', () => { resumeWhenVisible = false; });
-video.addEventListener('error', () => { $('#film-error').hidden = false; });
-new IntersectionObserver(entries => {
-  const latest = entries.reduce((last, entry) => entry.target === video && (!last || entry.time >= last.time) ? entry : last, null);
-  if (!latest) return;
-  videoVisible = latest.isIntersecting && latest.intersectionRatio >= 0.1;
-  if (!videoVisible) pauseForVisibility(); else resumeVideo();
-}, {threshold: 0.1}).observe(video);
-document.addEventListener('visibilitychange', () => document.hidden ? pauseForVisibility() : resumeVideo());
 function setDuration(seconds) {
   if (!Number.isFinite(seconds) || seconds <= 0) return;
   const total = Math.round(seconds), text = Math.floor(total / 60) + ':' + String(total % 60).padStart(2, '0');
   document.querySelectorAll('[data-duration]').forEach(element => { element.textContent = text; });
 }
-video.addEventListener('loadedmetadata', () => setDuration(video.duration));
 showView(viewFromHash(), false, false);
 
-// Keep new films discoverable without reloading the already playing, optimized film.
+// Metadata updates only the link and duration; the film is never downloaded by this page.
 const sourceOrigin = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'https://bibliafilm.com' : location.origin;
 fetch(sourceOrigin + '/episodios.json').then(response => {
   if (!response.ok) throw Error('metadata');
@@ -161,20 +102,7 @@ fetch(sourceOrigin + '/episodios.json').then(response => {
   };
   if (movie.video) {
     const source = validURL(/^https?:|^\//.test(movie.video) ? movie.video : (data.cdn || sourceOrigin + '/media').replace(/\/$/, '') + '/' + movie.video);
-    if (source !== 'https://media.bibliafilm.com/pelicula.mp4?v=clip8' && source !== video.src) {
-      // An unoptimized future upload must not start a large background download.
-      video.pause();
-      resumeWhenVisible = false;
-      filmPrepared = true;
-      video.autoplay = false;
-      video.preload = 'none';
-      video.src = source;
-    }
-  }
-  if (movie.poster) {
-    const poster = validURL(movie.poster);
-    // Keep the optimized copy of the current artwork; accept future poster updates.
-    if (poster !== 'https://bibliafilm.com/media/portada.jpg?v=leon1790360439' && poster !== video.poster) video.poster = poster;
+    if (source !== 'https://media.bibliafilm.com/pelicula.mp4?v=clip8' && source !== filmLink.href) filmLink.href = source;
   }
   if (movie.minutos) setDuration(Number(movie.minutos) * 60);
 }).catch(() => {});
