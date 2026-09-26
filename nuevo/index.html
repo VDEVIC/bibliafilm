@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d1d1f">
+<meta name="robots" content="noindex">
+<title>Biblia Film</title>
+<meta name="description" content="La Biblia, palabra por palabra, convertida en película. Gratis para todos.">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Biblia Film">
+<meta property="og:description" content="La Biblia, palabra por palabra, convertida en película. Gratis para todos.">
+<meta property="og:url" content="https://bibliafilm.com/nuevo/">
+<meta property="og:image" content="https://bibliafilm.com/nuevo/fotograma.jpg?v=clip8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231d1d1f'/><text x='32' y='46' font-size='40' text-anchor='middle' font-family='Georgia,serif' fill='%238a6d33'>B</text></svg>">
+<link rel="preload" as="image" href="fotograma.webp?v=clip8">
+<style>
+:root{
+  --fondo:#1d1d1f; --fondo2:#26262a; --linea:#3a3a3e;
+  --oro:#8a6d33; --oroclaro:#c9a55c; --oroclaro2:#d8b86e;
+  --texto:#ece6d8; --dim:#a9a297;
+  --serif:ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--fondo);color-scheme:dark;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--fondo);color:var(--texto);font-family:var(--serif);font-size:18px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+a{color:var(--oroclaro)}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+h1,h2{font-weight:600;letter-spacing:-.01em;line-height:1.15;color:var(--texto)}
+h2{font-size:26px;margin-bottom:12px}
+.mini{font-size:15px;color:var(--dim)}
+.mini a{color:var(--dim)}
+
+/* 0) barra de arriba: fina y opaca */
+.barra{position:sticky;top:0;z-index:5;background:var(--fondo);border-bottom:1px solid var(--oro);height:calc(52px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top)}
+.barra-in{max-width:640px;margin:0 auto;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.marca{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--oroclaro)}
+.marca .b{width:30px;height:30px;border-radius:8px;background:var(--oro);color:var(--fondo);font-weight:700;font-size:20px;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif}
+.marca span{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.22em;text-transform:uppercase}
+.barra .ir{font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.06em;color:var(--fondo);background:var(--oroclaro);border-radius:999px;padding:8px 16px;text-decoration:none}
+
+main{max-width:640px;margin:0 auto;padding:0 16px}
+section{scroll-margin-top:calc(60px + env(safe-area-inset-top))}
+.bloque{padding:30px 0;border-top:1px solid var(--linea)}
+.bloque:first-of-type{border-top:0}
+
+/* 1) la película: hueco reservado 16:9, fotograma real, arranca al tocar */
+.peli{padding:16px 0 26px}
+.marco{position:relative;aspect-ratio:16/9;width:100%;border-radius:14px;overflow:hidden;background:#111}
+.marco video{display:block;width:100%;height:100%;object-fit:cover;background:#111}
+.ver{position:absolute;left:0;top:0;width:100%;height:100%;border:0;background:transparent;display:flex;align-items:center;justify-content:center}
+.ver span{display:inline-flex;align-items:center;gap:10px;background:var(--oroclaro);color:var(--fondo);border-radius:999px;padding:12px 22px 12px 18px;font-family:var(--sans);font-weight:700;font-size:17px;letter-spacing:.02em}
+.ver svg{display:block;width:16px;height:18px;fill:var(--fondo)}
+.ver[hidden]{display:none}
+.peli h1{font-size:30px;margin-top:22px}
+.peli .sub{margin-top:8px;font-size:19px;color:var(--dim)}
+.peli .sub a{white-space:nowrap}
+
+/* 2) cuánto lleva */
+.cifra{font-size:22px;line-height:1.2}
+.cifra strong{font-size:44px;font-weight:600;color:var(--oroclaro);letter-spacing:-.02em}
+.tramo{margin-top:16px}
+.tramo-cab{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--sans);font-size:14px;letter-spacing:.04em;color:var(--dim)}
+.tramo-cab b{font-size:16px;color:var(--texto);font-weight:600}
+.pista{height:6px;border-radius:3px;background:var(--linea);margin-top:8px;overflow:hidden}
+.lleno{height:100%;width:0;background:var(--oroclaro);border-radius:3px}
+.avance .mini{margin-top:12px}
+
+/* 4) apoyo */
+.apoyo h2{font-size:30px}
+.apoyo .intro{color:var(--dim);margin-bottom:18px}
+.importes{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.chip{position:relative;height:60px;border:1px solid var(--linea);border-radius:12px;background:var(--fondo2);color:var(--texto);font-size:18px;display:flex;align-items:center;justify-content:center;padding:0}
+.chip.on{border-color:var(--oroclaro);background:var(--oroclaro);color:var(--fondo);font-weight:600}
+.chip .tag{position:absolute;left:0;right:0;bottom:-9px;margin:0 auto;width:max-content;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--fondo);color:var(--oroclaro);border:1px solid var(--oroclaro);border-radius:999px;padding:1px 6px;line-height:1.3}
+.chip.on .tag{background:var(--oroclaro);color:var(--fondo)}
+.chip input{width:100%;height:100%;min-width:0;border:0;outline:0;background:transparent;color:inherit;font:inherit;text-align:center;-moz-appearance:textfield;padding:0 4px}
+.chip input::-webkit-outer-spin-button,.chip input::-webkit-inner-spin-button{-webkit-appearance:none}
+.chip input::placeholder{color:var(--dim)}
+.chip.on input::placeholder{color:var(--fondo)}
+.chip input[hidden]{display:none}
+.chip button{width:100%;height:100%;border:0;border-radius:12px;background:transparent;color:inherit;font:inherit;padding:0}
+.chip button[hidden]{display:none}
+.chip .eur{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--dim)}
+.chip.on .eur{color:var(--fondo)}
+
+.pago{margin-top:22px}
+/* huecos con el alto ya reservado: la pasarela se monta dentro sin mover nada */
+.expres{min-height:64px}
+.expres.sin{min-height:0}
+.tarjeta{min-height:227px;position:relative}
+@media (min-width:650px){.tarjeta{min-height:149px}}
+.piel{position:absolute;left:0;top:0;right:0}
+.piel i{display:block;height:44px;border:1px solid var(--linea);border-radius:10px;margin-top:0}
+.piel i+i{margin-top:26px}
+.piel.dos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tarjeta.lista .piel{display:none}
+.pagar{margin-top:16px;width:100%;height:56px;border:0;border-radius:14px;background:var(--oroclaro);color:var(--fondo);font-family:var(--sans);font-size:17px;font-weight:700;letter-spacing:.02em}
+.pagar[disabled]{opacity:.6;cursor:default}
+.aviso{margin-top:10px;font-size:15px;color:#e39a8a;min-height:0}
+.aviso:empty{display:none}
+.pago .mini{margin-top:12px;text-align:center}
+
+/* 5) tras pagar */
+.gracias h2{font-size:34px}
+.gracias p{color:var(--dim)}
+.campo{margin-top:18px;display:block}
+.campo span{display:block;font-family:var(--sans);font-size:13px;letter-spacing:.04em;color:var(--dim);margin-bottom:6px}
+.fila{display:flex;gap:8px}
+.fila input{flex:1;min-width:0;height:52px;border:1px solid var(--linea);border-radius:12px;background:var(--fondo2);color:var(--texto);font:inherit;padding:0 14px;outline:0}
+.fila input:focus{border-color:var(--oroclaro)}
+.fila button{height:52px;padding:0 18px;border:0;border-radius:12px;background:var(--oroclaro);color:var(--fondo);font-family:var(--sans);font-weight:700;font-size:16px}
+.fila button[disabled]{opacity:.6}
+.hecho{margin-top:10px;color:var(--oroclaro);font-size:16px}
+.hecho:empty{display:none}
+.secundario{margin-top:18px;width:100%;height:52px;border:1px solid var(--oroclaro);border-radius:12px;background:transparent;color:var(--oroclaro);font-family:var(--sans);font-weight:600;font-size:16px}
+
+/* 6) créditos */
+.nombres{list-style:none;columns:2;column-gap:16px;margin-top:8px}
+.nombres li{break-inside:avoid;padding:6px 0;border-bottom:1px solid var(--linea);font-size:17px}
+
+/* 7-8) cómo se hace, dinero */
+.lineas{list-style:none}
+.lineas li{padding:8px 0 8px 18px;position:relative}
+.lineas li::before{content:"";position:absolute;left:0;top:19px;width:8px;height:1px;background:var(--oro)}
+
+/* 9) preguntas plegadas */
+details{border-top:1px solid var(--linea)}
+details:last-of-type{border-bottom:1px solid var(--linea)}
+summary{list-style:none;cursor:pointer;padding:14px 28px 14px 0;position:relative;font-size:18px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";position:absolute;right:4px;top:12px;color:var(--oroclaro);font-size:22px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{padding:0 0 16px;color:var(--dim)}
+
+/* 10) pie */
+footer{padding:28px 0 20px;text-align:center}
+footer p{font-size:15px;color:var(--dim)}
+footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--oro)}
+footer .v{margin-top:14px;font-family:var(--sans);font-size:11px;letter-spacing:.06em;color:#6c675f}
+
+/* botón fijo de abajo: opaco, sin desenfoque; se esconde cuando el apoyo está a la vista o suena la película */
+.fijo{position:fixed;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:6;height:54px;border-radius:14px;background:var(--oroclaro);color:var(--fondo);display:flex;align-items:center;justify-content:center;text-decoration:none;font-family:var(--sans);font-weight:700;font-size:17px;letter-spacing:.02em;transform:translateY(0);transition:transform .25s ease}
+.fijo.oculto{transform:translateY(calc(100% + 24px + env(safe-area-inset-bottom)))}
+@media (min-width:700px){.fijo{left:auto;right:24px;width:220px}}
+</style>
+</head>
+<body>
+
+<header class="barra"><div class="barra-in">
+  <a class="marca" href="/nuevo/" aria-label="Biblia Film"><span class="b">B</span><span>Biblia Film</span></a>
+  <a class="ir" href="#apoyo">Apoyar</a>
+</div></header>
+
+<main>
+
+<section class="peli" id="pelicula">
+  <div class="marco">
+    <video id="video" playsinline preload="none" poster="fotograma.webp?v=clip8" width="1280" height="720" aria-label="La película"></video>
+    <button class="ver" id="ver" type="button" aria-label="Ver la película"><span><svg viewBox="0 0 16 18" aria-hidden="true"><path d="M1 1.5v15l14-7.5z"/></svg>Ver · <b id="dur">3:54</b></span></button>
+  </div>
+  <h1>La Biblia, palabra por palabra, convertida en película.</h1>
+  <p class="sub">Gratis para todos. <a href="#apoyo">Apóyala</a> para que siga creciendo.</p>
+</section>
+
+<section class="bloque avance" id="avance">
+  <p class="cifra"><strong id="hecho-min">3:54</strong> de película</p>
+  <div class="tramo">
+    <div class="tramo-cab"><b id="tramo">Génesis 1 y 2</b><span id="tramo-pct">81 %</span></div>
+    <div class="pista"><div class="lleno" id="tramo-lleno" style="width:81%"></div></div>
+  </div>
+  <p class="mini">Por la voz ya puesta en película. La Biblia entera: <span id="caps">1.189</span> capítulos. Último trozo: <span id="fecha">26 de septiembre de 2026</span>.</p>
+</section>
+
+<section class="bloque apoyo" id="apoyo">
+  <div id="pagar-zona">
+    <h2>Que siga creciendo</h2>
+    <p class="intro">Elige cuánto. Sin cuenta, en dos toques.</p>
+    <div class="importes" id="importes" role="radiogroup" aria-label="Importe">
+      <button class="chip" type="button" data-v="3">3 €</button>
+      <button class="chip on" type="button" data-v="5">5 €<span class="tag">Sugerido</span></button>
+      <button class="chip" type="button" data-v="10">10 €</button>
+      <button class="chip" type="button" data-v="25">25 €</button>
+      <label class="chip" id="otra"><button type="button" id="otra-boton">Otra</button><input id="otra-input" type="number" inputmode="decimal" min="0.5" max="1000" step="0.5" placeholder="€" aria-label="Otro importe en euros" hidden></label>
+    </div>
+    <div class="pago">
+      <div class="expres" id="expres"></div>
+      <div class="tarjeta" id="tarjeta-zona">
+        <div class="piel" aria-hidden="true"><i></i><i></i></div>
+        <div id="tarjeta"></div>
+      </div>
+      <button class="pagar" id="pagar" type="button">Apoyar con 5 €</button>
+      <p class="aviso" id="aviso" role="alert"></p>
+      <p class="mini">Pago seguro con Stripe · Sin cuenta · Al apoyar aceptas las <a href="/condiciones" target="_blank" rel="noopener">condiciones</a>.</p>
+    </div>
+  </div>
+  <div class="gracias" id="gracias" hidden>
+    <h2>Gracias.</h2>
+    <p>Con esto la película sigue creciendo.</p>
+    <label class="campo" for="nombre"><span>TU NOMBRE EN LOS CRÉDITOS (opcional)</span>
+      <div class="fila"><input id="nombre" type="text" maxlength="40" autocomplete="name" placeholder="Como quieras aparecer"><button type="button" id="nombre-boton">Añadir</button></div>
+    </label>
+    <p class="hecho" id="nombre-hecho"></p>
+    <button class="secundario" type="button" id="compartir">Compartir bibliafilm.com</button>
+  </div>
+</section>
+
+<section class="bloque" id="creditos" hidden>
+  <h2>Créditos</h2>
+  <p class="mini">Personas que la apoyan. Aparecerán también en los créditos de la película.</p>
+  <ul class="nombres" id="nombres"></ul>
+</section>
+
+<section class="bloque">
+  <h2>Cómo se hace</h2>
+  <ul class="lineas">
+    <li>El texto: Reina-Valera 1909, íntegro, palabra por palabra.</li>
+    <li>Imagen, movimiento y voz: herramientas de inteligencia artificial.</li>
+    <li>Cada plano, el montaje y la revisión: a mano.</li>
+  </ul>
+</section>
+
+<section class="bloque">
+  <h2>A dónde va el dinero</h2>
+  <ul class="lineas">
+    <li>Las herramientas de imagen y vídeo.</li>
+    <li>La voz.</li>
+    <li>La web y el tiempo de quien la hace.</li>
+  </ul>
+</section>
+
+<section class="bloque">
+  <h2>Preguntas</h2>
+  <details><summary>¿Puedo verla sin pagar?</summary><p>Sí, siempre. La película es gratis para todo el mundo, apoye o no.</p></details>
+  <details><summary>¿Es seguro pagar?</summary><p>El pago lo hace Stripe. Tu tarjeta no pasa por esta web.</p></details>
+  <details><summary>¿Cómo salgo en los créditos?</summary><p>Después de apoyar, escribe el nombre con el que quieras aparecer. Saldrá en esta página y en los créditos de la película.</p></details>
+  <details><summary>¿Desgrava?</summary><p>No. Biblia Film no es una entidad sin ánimo de lucro.</p></details>
+  <details><summary>¿Cómo contacto?</summary><p>Escribe a info@bibliafilm.com.</p></details>
+</section>
+
+<footer>
+  <p><a href="/condiciones">Condiciones</a> · <a href="mailto:info@bibliafilm.com">Contacto</a> · <a href="https://www.youtube.com/@bibliafilm" rel="noopener">YouTube</a> · <a href="https://www.tiktok.com/@bibliafilm" rel="noopener">TikTok</a></p>
+  <p class="v">Biblia Film · versión 27.09.2026-1</p>
+</footer>
+
+</main>
+
+<a class="fijo oculto" id="fijo" href="#apoyo">Apoyar</a>
+
+<script src="nuevo.js?v=27a" defer></script>
+</body>
+</html>
