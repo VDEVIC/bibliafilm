@@ -1,255 +1,52 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1d1d1f">
-<meta name="robots" content="noindex">
-<title>Biblia Film</title>
-<meta name="description" content="La Biblia, palabra por palabra, convertida en película. Gratis para todos.">
-<meta property="og:type" content="website">
-<meta property="og:locale" content="es_ES">
-<meta property="og:title" content="Biblia Film">
-<meta property="og:description" content="La Biblia, palabra por palabra, convertida en película. Gratis para todos.">
-<meta property="og:url" content="https://bibliafilm.com/nuevo/">
-<meta property="og:image" content="https://bibliafilm.com/nuevo/fotograma.jpg?v=clip8">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%231d1d1f'/><text x='32' y='46' font-size='40' text-anchor='middle' font-family='Georgia,serif' fill='%238a6d33'>B</text></svg>">
-<link rel="preload" as="image" href="fotograma.webp?v=clip8">
-<style>
-:root{
-  --fondo:#1d1d1f; --fondo2:#26262a; --linea:#3a3a3e;
-  --oro:#8a6d33; --oroclaro:#c9a55c; --oroclaro2:#d8b86e;
-  --texto:#ece6d8; --dim:#a9a297;
-  --serif:ui-serif,"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
-  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{background:var(--fondo);color-scheme:dark;scroll-behavior:smooth;-webkit-text-size-adjust:100%}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
-body{background:var(--fondo);color:var(--texto);font-family:var(--serif);font-size:18px;line-height:1.5;-webkit-font-smoothing:antialiased;padding-bottom:calc(88px + env(safe-area-inset-bottom))}
-a{color:var(--oroclaro)}
-button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
-h1,h2{font-weight:600;letter-spacing:-.01em;line-height:1.15;color:var(--texto)}
-h2{font-size:26px;margin-bottom:12px}
-.mini{font-size:15px;color:var(--dim)}
-.mini a{color:var(--dim)}
-
-/* 0) barra de arriba: fina y opaca */
-.barra{position:sticky;top:0;z-index:5;background:var(--fondo);border-bottom:1px solid var(--oro);height:calc(52px + env(safe-area-inset-top));padding-top:env(safe-area-inset-top)}
-.barra-in{max-width:640px;margin:0 auto;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
-.marca{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--oroclaro)}
-.marca .b{width:30px;height:30px;border-radius:8px;background:var(--oro);color:var(--fondo);font-weight:700;font-size:20px;display:flex;align-items:center;justify-content:center;font-family:Georgia,serif}
-.marca span{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.22em;text-transform:uppercase}
-.barra .ir{font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.06em;color:var(--fondo);background:var(--oroclaro);border-radius:999px;padding:8px 16px;text-decoration:none}
-
-main{max-width:640px;margin:0 auto;padding:0 16px}
-section{scroll-margin-top:calc(60px + env(safe-area-inset-top))}
-.bloque{padding:30px 0;border-top:1px solid var(--linea)}
-.bloque:first-of-type{border-top:0}
-
-/* 1) la película: hueco reservado 16:9, fotograma real, arranca al tocar */
-.peli{padding:16px 0 26px}
-.marco{position:relative;aspect-ratio:16/9;width:100%;border-radius:14px;overflow:hidden;background:#111}
-.marco video{display:block;width:100%;height:100%;object-fit:cover;background:#111}
-.ver{position:absolute;left:0;top:0;width:100%;height:100%;border:0;background:transparent;display:flex;align-items:center;justify-content:center}
-.ver span{display:inline-flex;align-items:center;gap:10px;background:var(--oroclaro);color:var(--fondo);border-radius:999px;padding:12px 22px 12px 18px;font-family:var(--sans);font-weight:700;font-size:17px;letter-spacing:.02em}
-.ver svg{display:block;width:16px;height:18px;fill:var(--fondo)}
-.ver[hidden]{display:none}
-.peli h1{font-size:30px;margin-top:22px}
-.peli .sub{margin-top:8px;font-size:19px;color:var(--dim)}
-.peli .sub a{white-space:nowrap}
-
-/* 2) cuánto lleva */
-.cifra{font-size:22px;line-height:1.2}
-.cifra strong{font-size:44px;font-weight:600;color:var(--oroclaro);letter-spacing:-.02em}
-.tramo{margin-top:16px}
-.tramo-cab{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--sans);font-size:14px;letter-spacing:.04em;color:var(--dim)}
-.tramo-cab b{font-size:16px;color:var(--texto);font-weight:600}
-.pista{height:6px;border-radius:3px;background:var(--linea);margin-top:8px;overflow:hidden}
-.lleno{height:100%;width:0;background:var(--oroclaro);border-radius:3px}
-.avance .mini{margin-top:12px}
-
-/* 4) apoyo */
-.apoyo h2{font-size:30px}
-.apoyo .intro{color:var(--dim);margin-bottom:18px}
-.importes{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
-.chip{position:relative;height:60px;border:1px solid var(--linea);border-radius:12px;background:var(--fondo2);color:var(--texto);font-size:18px;display:flex;align-items:center;justify-content:center;padding:0}
-.chip.on{border-color:var(--oroclaro);background:var(--oroclaro);color:var(--fondo);font-weight:600}
-.chip .tag{position:absolute;left:0;right:0;bottom:-9px;margin:0 auto;width:max-content;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--fondo);color:var(--oroclaro);border:1px solid var(--oroclaro);border-radius:999px;padding:1px 6px;line-height:1.3}
-.chip.on .tag{background:var(--oroclaro);color:var(--fondo)}
-.chip input{width:100%;height:100%;min-width:0;border:0;outline:0;background:transparent;color:inherit;font:inherit;text-align:center;-moz-appearance:textfield;padding:0 4px}
-.chip input::-webkit-outer-spin-button,.chip input::-webkit-inner-spin-button{-webkit-appearance:none}
-.chip input::placeholder{color:var(--dim)}
-.chip.on input::placeholder{color:var(--fondo)}
-.chip input[hidden]{display:none}
-.chip button{width:100%;height:100%;border:0;border-radius:12px;background:transparent;color:inherit;font:inherit;padding:0}
-.chip button[hidden]{display:none}
-.chip .eur{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--dim)}
-.chip.on .eur{color:var(--fondo)}
-
-.pago{margin-top:22px}
-/* huecos con el alto ya reservado: la pasarela se monta dentro sin mover nada */
-.expres{min-height:64px}
-.expres.sin{min-height:0}
-.tarjeta{min-height:227px;position:relative}
-@media (min-width:650px){.tarjeta{min-height:149px}}
-.piel{position:absolute;left:0;top:0;right:0}
-.piel i{display:block;height:44px;border:1px solid var(--linea);border-radius:10px;margin-top:0}
-.piel i+i{margin-top:26px}
-.piel.dos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.tarjeta.lista .piel{display:none}
-.pagar{margin-top:16px;width:100%;height:56px;border:0;border-radius:14px;background:var(--oroclaro);color:var(--fondo);font-family:var(--sans);font-size:17px;font-weight:700;letter-spacing:.02em}
-.pagar[disabled]{opacity:.6;cursor:default}
-.aviso{margin-top:10px;font-size:15px;color:#e39a8a;min-height:0}
-.aviso:empty{display:none}
-.pago .mini{margin-top:12px;text-align:center}
-
-/* 5) tras pagar */
-.gracias h2{font-size:34px}
-.gracias p{color:var(--dim)}
-.campo{margin-top:18px;display:block}
-.campo span{display:block;font-family:var(--sans);font-size:13px;letter-spacing:.04em;color:var(--dim);margin-bottom:6px}
-.fila{display:flex;gap:8px}
-.fila input{flex:1;min-width:0;height:52px;border:1px solid var(--linea);border-radius:12px;background:var(--fondo2);color:var(--texto);font:inherit;padding:0 14px;outline:0}
-.fila input:focus{border-color:var(--oroclaro)}
-.fila button{height:52px;padding:0 18px;border:0;border-radius:12px;background:var(--oroclaro);color:var(--fondo);font-family:var(--sans);font-weight:700;font-size:16px}
-.fila button[disabled]{opacity:.6}
-.hecho{margin-top:10px;color:var(--oroclaro);font-size:16px}
-.hecho:empty{display:none}
-.secundario{margin-top:18px;width:100%;height:52px;border:1px solid var(--oroclaro);border-radius:12px;background:transparent;color:var(--oroclaro);font-family:var(--sans);font-weight:600;font-size:16px}
-
-/* 6) créditos */
-.nombres{list-style:none;columns:2;column-gap:16px;margin-top:8px}
-.nombres li{break-inside:avoid;padding:6px 0;border-bottom:1px solid var(--linea);font-size:17px}
-
-/* 7-8) cómo se hace, dinero */
-.lineas{list-style:none}
-.lineas li{padding:8px 0 8px 18px;position:relative}
-.lineas li::before{content:"";position:absolute;left:0;top:19px;width:8px;height:1px;background:var(--oro)}
-
-/* 9) preguntas plegadas */
-details{border-top:1px solid var(--linea)}
-details:last-of-type{border-bottom:1px solid var(--linea)}
-summary{list-style:none;cursor:pointer;padding:14px 28px 14px 0;position:relative;font-size:18px}
-summary::-webkit-details-marker{display:none}
-summary::after{content:"+";position:absolute;right:4px;top:12px;color:var(--oroclaro);font-size:22px;line-height:1}
-details[open] summary::after{content:"–"}
-details p{padding:0 0 16px;color:var(--dim)}
-
-/* 10) pie */
-footer{padding:28px 0 20px;text-align:center}
-footer p{font-size:15px;color:var(--dim)}
-footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--oro)}
-footer .v{margin-top:14px;font-family:var(--sans);font-size:11px;letter-spacing:.06em;color:#6c675f}
-
-/* botón fijo de abajo: opaco, sin desenfoque; se esconde cuando el apoyo está a la vista o suena la película */
-.fijo{position:fixed;left:16px;right:16px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:6;height:54px;border-radius:14px;background:var(--oroclaro);color:var(--fondo);display:flex;align-items:center;justify-content:center;text-decoration:none;font-family:var(--sans);font-weight:700;font-size:17px;letter-spacing:.02em;transform:translateY(0);transition:transform .25s ease}
-.fijo.oculto{transform:translateY(calc(100% + 24px + env(safe-area-inset-bottom)))}
-@media (min-width:700px){.fijo{left:auto;right:24px;width:220px}}
-</style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f6f4ed"><meta name="robots" content="noindex,follow">
+<title>Biblia Film · La Biblia, hecha cine.</title>
+<meta name="description" content="La Biblia, palabra por palabra, hecha cine. Mira Génesis gratis y ayuda a crear lo que viene. Un proyecto independiente en desarrollo.">
+<meta property="og:type" content="website"><meta property="og:locale" content="es_ES"><meta property="og:title" content="Biblia Film · La Biblia, hecha cine."><meta property="og:description" content="Mira Génesis gratis. Descubre el proyecto y ayuda a crear lo que viene."><meta property="og:url" content="https://bibliafilm.com/nuevo"><meta property="og:image" content="https://bibliafilm.com/nuevo/assets/genesis.jpg"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2313251d'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-family='Georgia' font-size='43' fill='%23e6c575'%3EB%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/nuevo/pantalla.css?v=5"><script src="/nuevo/pantalla.js?v=6" defer></script>
 </head>
 <body>
-
-<header class="barra"><div class="barra-in">
-  <a class="marca" href="/nuevo/" aria-label="Biblia Film"><span class="b">B</span><span>Biblia Film</span></a>
-  <a class="ir" href="#apoyo">Apoyar</a>
+<svg width="0" height="0" aria-hidden="true" style="position:absolute;overflow:hidden"><defs>
+<symbol id="i-play" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5v15M12 5C9 3 5 3 2 4v15c3-1 7-1 10 1 3-2 7-2 10-1V4c-3-1-7-1-10 1Z"/></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V2m-5 5 5-5 5 5M5 11H3v11h18V11h-2"/></symbol>
+<symbol id="i-sound" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5V4Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h16m-6-6 6 6-6 6"/></symbol>
+<symbol id="i-left" viewBox="0 0 24 24"><path d="m14 5-7 7 7 7"/></symbol>
+<symbol id="i-right" viewBox="0 0 24 24"><path d="m10 5 7 7-7 7"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="12" rx="3"/><path d="M8 10V6a4 4 0 0 1 8 0v4m-4 9v-4"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 2 3 7 7 3-7 3-3 7-3-7-7-3 7-3Z"/></symbol>
+</defs></svg>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="header"><div class="shell"><div class="header-top"><a class="wordmark" href="#pelicula" data-view="pelicula" aria-label="Biblia Film, inicio"><span class="brand-icon">B</span><span>BIBLIA <span class="brand-light">FILM</span></span></a><span class="header-tag">Una historia eterna. Una película en creación.</span><button class="icon-button header-share" id="share-project" aria-label="Compartir el proyecto"><svg class="icon" aria-hidden="true"><use href="#i-share"/></svg><span>Compartir</span></button></div>
+<nav class="view-tabs" role="tablist" aria-label="Explorar Biblia Film"><button class="view-tab" type="button" id="tab-pelicula" role="tab" aria-controls="panel-pelicula" aria-selected="true" data-view="pelicula"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg>Película</button><button class="view-tab" type="button" id="tab-proyecto" role="tab" aria-controls="panel-proyecto" aria-selected="false" data-view="proyecto" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg>Proyecto</button><button class="view-tab" type="button" id="tab-apoyar" role="tab" aria-controls="panel-apoyar" aria-selected="false" data-view="apoyar" tabindex="-1"><svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg>Apoyar</button></nav>
 </div></header>
-
-<main>
-
-<section class="peli" id="pelicula">
-  <div class="marco">
-    <video id="video" playsinline preload="none" poster="fotograma.webp?v=clip8" width="1280" height="720" aria-label="La película"></video>
-    <button class="ver" id="ver" type="button" aria-label="Ver la película"><span><svg viewBox="0 0 16 18" aria-hidden="true"><path d="M1 1.5v15l14-7.5z"/></svg>Ver · <b id="dur">3:54</b></span></button>
-  </div>
-  <h1>La Biblia, palabra por palabra, convertida en película.</h1>
-  <p class="sub">Gratis para todos. <a href="#apoyo">Apóyala</a> para que siga creciendo.</p>
+<main id="contenido" class="shell">
+<section class="view-panel" id="panel-pelicula" role="tabpanel" aria-labelledby="tab-pelicula">
+<div class="intro-row"><div class="intro"><p class="eyebrow">GÉNESIS · UNA OBRA EN CREACIÓN</p><h1>La Biblia, <em>hecha cine.</em></h1><p class="intro-subtitle">Palabra por palabra. Gratis para todos.</p></div></div>
+<article class="film-feature" aria-labelledby="feature-title">
+<div class="feature-cover"><img id="film-cover" src="/nuevo/assets/genesis-800.webp" alt="Arte conceptual de Génesis: un río entre montañas iluminado al amanecer" width="800" height="450" fetchpriority="high" decoding="async"><span class="feature-chapter">01 / GÉNESIS</span></div>
+<div class="feature-copy"><p class="eyebrow">UNA PELÍCULA QUE CRECE CONTIGO</p><h2 id="feature-title">El principio de<br>una gran historia.</h2><p class="feature-description">Ya puedes ver las primeras escenas de Génesis. Tu apoyo ayuda a que podamos seguir creando.</p><p class="feature-facts"><span><span data-duration>3:54</span> disponibles</span><span>Gratis para todos</span></p><div class="feature-actions"><a class="button secondary" id="film-link" href="/nuevo/ver/"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg>Ver la película</a><button class="button primary" type="button" data-view="apoyar"><svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg>Apoyar el proyecto</button></div><p class="feature-note">Aportación voluntaria · Sin suscripción</p></div>
+</article>
+<section class="rail-section" aria-labelledby="rail-title"><div class="rail-heading"><h2 id="rail-title">Una idea que merece crecer.</h2><div class="rail-tools"><span class="rail-counter" id="rail-counter" aria-live="polite">1 / 3</span><button class="icon-button" id="rail-prev" type="button" aria-label="Tarjeta anterior" aria-controls="story-rail" disabled><svg class="icon" aria-hidden="true"><use href="#i-left"/></svg></button><button class="icon-button" id="rail-next" type="button" aria-label="Tarjeta siguiente" aria-controls="story-rail"><svg class="icon" aria-hidden="true"><use href="#i-right"/></svg></button></div></div>
+<div class="story-rail" id="story-rail" role="region" aria-label="Tres claves de Biblia Film" tabindex="0">
+<article class="story-card photo"><img src="/nuevo/assets/genesis-800.webp" alt="Interpretación artística de la creación" width="800" height="450" loading="lazy" decoding="async"><p class="eyebrow">01 / EL RELATO</p><h3>Cada palabra cuenta.</h3><p>La Biblia llevada al cine a partir del texto Reina-Valera de 1909, sin resumir el relato.</p></article>
+<article class="story-card green-card"><span class="card-number" aria-hidden="true">IA + cine</span><p class="eyebrow">02 / LA CREACIÓN</p><h3>Una nueva forma<br>de imaginarla.</h3><p>Imágenes, voz y sonido creados con ayuda de IA. Cada escena es una interpretación artística.</p></article>
+<article class="story-card gold-card"><svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg><p class="eyebrow">03 / TU APOYO</p><h3>Gratis para ver.<br>Juntos para crear.</h3><p>Tu aportación es voluntaria. Ayuda a sostener la producción, las herramientas y la difusión.</p></article>
+</div><div class="rail-more"><span class="rail-hint" id="rail-hint">Desliza para descubrir más</span><button class="text-button" data-view="proyecto">Conoce el proyecto <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button></div></section>
 </section>
-
-<section class="bloque avance" id="avance">
-  <p class="cifra"><strong id="hecho-min">3:54</strong> de película</p>
-  <div class="tramo">
-    <div class="tramo-cab"><b id="tramo">Génesis 1 y 2</b><span id="tramo-pct">81 %</span></div>
-    <div class="pista"><div class="lleno" id="tramo-lleno" style="width:81%"></div></div>
-  </div>
-  <p class="mini">Por la voz ya puesta en película. La Biblia entera: <span id="caps">1.189</span> capítulos. Último trozo: <span id="fecha">26 de septiembre de 2026</span>.</p>
-</section>
-
-<section class="bloque apoyo" id="apoyo">
-  <div id="pagar-zona">
-    <h2>Que siga creciendo</h2>
-    <p class="intro">Elige cuánto. Sin cuenta, en dos toques.</p>
-    <div class="importes" id="importes" role="radiogroup" aria-label="Importe">
-      <button class="chip" type="button" data-v="3">3 €</button>
-      <button class="chip on" type="button" data-v="5">5 €<span class="tag">Sugerido</span></button>
-      <button class="chip" type="button" data-v="10">10 €</button>
-      <button class="chip" type="button" data-v="25">25 €</button>
-      <label class="chip" id="otra"><button type="button" id="otra-boton">Otra</button><input id="otra-input" type="number" inputmode="decimal" min="0.5" max="1000" step="0.5" placeholder="€" aria-label="Otro importe en euros" hidden></label>
-    </div>
-    <div class="pago">
-      <div class="expres" id="expres"></div>
-      <div class="tarjeta" id="tarjeta-zona">
-        <div class="piel" aria-hidden="true"><i></i><i></i></div>
-        <div id="tarjeta"></div>
-      </div>
-      <button class="pagar" id="pagar" type="button">Apoyar con 5 €</button>
-      <p class="aviso" id="aviso" role="alert"></p>
-      <p class="mini">Pago seguro con Stripe · Sin cuenta · Al apoyar aceptas las <a href="/condiciones" target="_blank" rel="noopener">condiciones</a>.</p>
-    </div>
-  </div>
-  <div class="gracias" id="gracias" hidden>
-    <h2>Gracias.</h2>
-    <p>Con esto la película sigue creciendo.</p>
-    <label class="campo" for="nombre"><span>TU NOMBRE EN LOS CRÉDITOS (opcional)</span>
-      <div class="fila"><input id="nombre" type="text" maxlength="40" autocomplete="name" placeholder="Como quieras aparecer"><button type="button" id="nombre-boton">Añadir</button></div>
-    </label>
-    <p class="hecho" id="nombre-hecho"></p>
-    <button class="secundario" type="button" id="compartir">Compartir bibliafilm.com</button>
-  </div>
-</section>
-
-<section class="bloque" id="creditos" hidden>
-  <h2>Créditos</h2>
-  <p class="mini">Personas que la apoyan. Aparecerán también en los créditos de la película.</p>
-  <ul class="nombres" id="nombres"></ul>
-</section>
-
-<section class="bloque">
-  <h2>Cómo se hace</h2>
-  <ul class="lineas">
-    <li>El texto: Reina-Valera 1909, íntegro, palabra por palabra.</li>
-    <li>Imagen, movimiento y voz: herramientas de inteligencia artificial.</li>
-    <li>Cada plano, el montaje y la revisión: a mano.</li>
-  </ul>
-</section>
-
-<section class="bloque">
-  <h2>A dónde va el dinero</h2>
-  <ul class="lineas">
-    <li>Las herramientas de imagen y vídeo.</li>
-    <li>La voz.</li>
-    <li>La web y el tiempo de quien la hace.</li>
-  </ul>
-</section>
-
-<section class="bloque">
-  <h2>Preguntas</h2>
-  <details><summary>¿Puedo verla sin pagar?</summary><p>Sí, siempre. La película es gratis para todo el mundo, apoye o no.</p></details>
-  <details><summary>¿Es seguro pagar?</summary><p>El pago lo hace Stripe. Tu tarjeta no pasa por esta web.</p></details>
-  <details><summary>¿Cómo salgo en los créditos?</summary><p>Después de apoyar, escribe el nombre con el que quieras aparecer. Saldrá en esta página y en los créditos de la película.</p></details>
-  <details><summary>¿Desgrava?</summary><p>No. Biblia Film no es una entidad sin ánimo de lucro.</p></details>
-  <details><summary>¿Cómo contacto?</summary><p>Escribe a info@bibliafilm.com.</p></details>
-</section>
-
-<footer>
-  <p><a href="/condiciones">Condiciones</a> · <a href="mailto:info@bibliafilm.com">Contacto</a> · <a href="https://www.youtube.com/@bibliafilm" rel="noopener">YouTube</a> · <a href="https://www.tiktok.com/@bibliafilm" rel="noopener">TikTok</a></p>
-  <p class="v">Biblia Film · versión 27.09.2026-1</p>
-</footer>
-
+<section class="view-panel" id="panel-proyecto" role="tabpanel" aria-labelledby="tab-proyecto" hidden><div class="project-layout"><div class="project-art"><img src="/nuevo/assets/genesis-800.webp" alt="Arte conceptual de Génesis" loading="lazy" width="800" height="450"><blockquote>«Y dijo Dios:<br>Sea la luz:<br>y fue la luz.»<cite>GÉNESIS 1:3 · REINA-VALERA 1909</cite></blockquote></div><div class="project-copy"><p class="eyebrow">EL PROYECTO</p><h1>Una historia eterna.<br>Una nueva forma<br>de vivirla.</h1><p class="lead">La idea es llevar la Biblia completa al cine, palabra por palabra, y compartir la película mientras se crea.</p><p>Biblia Film es un proyecto independiente. Parte de Reina-Valera de 1909 y utiliza inteligencia artificial para crear imágenes, voz y sonido. Las imágenes son una interpretación artística del texto.</p><div class="project-facts"><div><strong>Génesis</strong><span>Lo que estamos creando</span></div><div><strong>66 libros</strong><span>La visión completa</span></div></div><p>Hoy puedes ver los primeros <span data-duration>3:54</span>. Seguimos construyendo la película escena a escena, sin una fecha de finalización garantizada.</p><div class="project-links"><button class="button primary" data-view="apoyar">Formar parte <svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg></button><a class="button secondary" href="https://www.youtube.com/@bibliafilm" target="_blank" rel="noopener">Seguir en YouTube ↗</a></div><div class="faq-block"><h2>Con toda claridad.</h2><div class="faq-list"><details><summary>¿Puedo verla sin aportar?</summary><p>Sí. La película disponible es gratuita. Apoyar el proyecto es una decisión completamente voluntaria.</p></details><details><summary>¿Qué estoy apoyando?</summary><p>La actividad de Biblia Film: producción, herramientas, servicios, mantenimiento de la web, redes, dedicación personal y otros contenidos o proyectos relacionados. El dinero no está vinculado a una escena o un gasto concreto.</p></details><details><summary>¿Qué recibo al aportar?</summary><p>Apoyas un proyecto creativo en desarrollo. No es una compra, inversión ni suscripción; no incluye recompensas, participación en ingresos ni deducción fiscal. Biblia Film no es una entidad sin ánimo de lucro. <a href="/condiciones" target="_blank" rel="noopener">Condiciones del apoyo</a>.</p></details><details><summary>¿Cuándo estará terminada?</summary><p>No hay una fecha de finalización ni un ritmo de publicación garantizados. El proyecto puede evolucionar, pausarse o terminar, según se explica en sus <a href="/condiciones" target="_blank" rel="noopener">condiciones</a>.</p></details></div></div></div></div></section>
+<section class="view-panel" id="panel-apoyar" role="tabpanel" aria-labelledby="tab-apoyar" hidden><div class="support-layout"><div class="support-heading"><p class="eyebrow">HAZ POSIBLE LO QUE VIENE</p><h1>Un pequeño impulso.<br>Una historia enorme.</h1><p>Si te ha gustado lo que has visto, ayuda a que podamos seguir creando. Tú eliges cuánto aportar.</p><ul class="impact-list"><li><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><div><strong>Producción</strong><p>Imágenes, narración, sonido y trabajo creativo.</p></div></li><li><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg><div><strong>Herramientas y tiempo</strong><p>Servicios y dedicación para dar forma al relato.</p></div></li><li><svg class="icon" aria-hidden="true"><use href="#i-heart"/></svg><div><strong>Una película abierta</strong><p>La web y la difusión para compartirla con todos.</p></div></li></ul><button class="text-button" data-view="pelicula">Volver a la película</button></div>
+<div class="support-card"><h2>Tu apoyo cuenta.</h2><p>Una aportación puntual, sin suscripción.</p><form id="support-form"><fieldset><legend>Elige tu aportación</legend><div class="amount-options"><button type="button" data-amount="3" aria-pressed="false">3 €</button><button type="button" data-amount="5" aria-pressed="true">5 €</button><button type="button" data-amount="10" aria-pressed="false">10 €</button><button type="button" data-amount="20" aria-pressed="false">20 €</button></div><label class="custom-amount"><span>Otra cantidad</span><span class="custom-input"><input id="custom-amount" type="number" min="0.5" max="1000" step="0.01" inputmode="decimal" aria-label="Otra cantidad en euros" placeholder="Tú eliges"><span>€</span></span></label></fieldset><button class="button support-submit" type="submit"><span id="support-label">Continuar con 5 €</span><svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button><p class="payment-note">Voluntario · Sin cuenta · Sin recurrencia</p></form><div class="payment-brands" aria-label="Tarjeta, Apple Pay o Google Pay"><img src="/img/apple-pay.svg" alt="Apple Pay" width="37" height="22"><img src="/img/google-pay.svg" alt="Google Pay" width="37" height="22"><img src="/img/visa.svg" alt="Visa" width="37" height="22"><img src="/img/mastercard.svg" alt="Mastercard" width="37" height="22"></div><p class="secure-note"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg>Pago gestionado por Stripe</p><div class="support-fineprint">Apoyas un proyecto independiente. No compras un producto ni recibes recompensas. <a href="/condiciones" target="_blank" rel="noopener">Condiciones del apoyo</a>.</div></div>
+<div class="support-details"><h2>¿Qué hace posible?</h2><p class="support-extra">Producción, herramientas, tiempo de creación y difusión. La aportación sostiene la actividad de Biblia Film y no está vinculada a una escena concreta.</p><button class="text-button" data-view="proyecto">Saber más sobre el proyecto <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+</div></section>
 </main>
-
-<a class="fijo oculto" id="fijo" href="#apoyo">Apoyar</a>
-
-<script src="nuevo.js?v=27a" defer></script>
-</body>
-</html>
+<footer class="footer shell"><span>Biblia Film · Una película en creación.</span><div class="footer-links"><a href="https://www.youtube.com/@bibliafilm" target="_blank" rel="noopener">YouTube ↗</a><a href="https://www.tiktok.com/@bibliafilm" target="_blank" rel="noopener">TikTok ↗</a><a href="mailto:info@bibliafilm.com">Contacto</a><a href="/condiciones">Condiciones</a></div></footer>
+<dialog id="payment-dialog" aria-labelledby="payment-title"><button type="button" class="dialog-close" aria-label="Cerrar ventana de aportación">×</button><p class="eyebrow dark-eyebrow">GRACIAS POR APOYAR</p><h2 id="payment-title">Un impulso para<br>la siguiente escena.</h2><p class="dialog-intro">Aportación única. Elige cómo quieres realizarla.</p><p id="payment-loading" role="status">Preparando el pago seguro…</p><div id="payment-content" hidden>
+<div class="apoyo" id="apoyo"><button id="apoyar" type="button" hidden>Apoyar el proyecto</button><div class="desplegable" id="zEligir"><div><p class="elige" id="t-elige">Elige el método de pago</p></div></div><div class="desplegable marcasCaja" id="zMarcas"><div><div class="marcas" id="marcas" role="group" aria-label="Forma de pago"><button type="button" data-m="apple" aria-label="Apple Pay"><img src="/img/apple-pay.svg" alt=""></button><button type="button" data-m="google" aria-label="Google Pay"><img src="/img/google-pay.svg" alt=""></button><button type="button" data-m="tarjeta" aria-label="Tarjeta"><img src="/img/visa.svg" alt=""><img src="/img/mastercard.svg" alt=""></button></div></div></div><div class="desplegable" id="zImportes"><div class="detalle-int"><div class="importes" id="importes"><button type="button" data-v="3">3 €</button><button type="button" data-v="5" class="on">5 €</button><button type="button" data-v="10">10 €</button><button type="button" data-v="20">20 €</button><label class="otro"><span>€</span><input id="otro" type="number" min="0.5" max="1000" step="0.01" placeholder="otro" inputmode="decimal" aria-label="Otra aportación en euros"></label></div><label class="acepto"><input type="checkbox" id="acepto"><span id="t-acepto">He leído y acepto las <a href="/condiciones" target="_blank" rel="noopener">condiciones del apoyo</a>.</span></label></div></div><div class="desplegable" id="zApple"><div class="detalle-int"><div id="expressApple"></div></div></div><div class="desplegable" id="zGoogle"><div class="detalle-int"><div id="expressGoogle"></div></div></div><div class="desplegable" id="zTarjeta"><div class="detalle-int"><div id="tarjeta"></div><button class="button support-submit" id="pagar" type="button">Apoyar con 5 €</button></div></div><p class="aviso" id="aviso" hidden></p></div>
+</div><p class="dialog-legal">Ver la película es gratis. Tu apoyo es voluntario y no incluye recompensas. <a href="/condiciones" target="_blank" rel="noopener">Condiciones completas</a>.</p></dialog><p id="toast" role="status" aria-live="polite"></p>
+</body></html>
