@@ -10,8 +10,8 @@
   const disponible = { apple: null, google: null, tarjeta: true };
   const cts = () => Math.round(importe * 100);
   const eur = () => importe.toLocaleString('es-ES') + ' €';
-  const aspecto = { theme: 'stripe', variables: { colorPrimary: '#243724', colorText: '#1d1d1f', colorBackground: '#ffffff', colorDanger: '#a3362c', borderRadius: '4px', fontFamily: 'DM Sans, sans-serif', fontSizeBase: '16px' }, rules: { '.Input': { borderColor: '#e4e0d8', boxShadow: 'none' }, '.Input:focus': { borderColor: '#1d1d1f', boxShadow: '0 0 0 1px #1d1d1f' } } };
-  const fuentes = [{ cssSrc: 'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap' }];
+  const aspecto = { theme: 'stripe', variables: { colorPrimary: '#243724', colorText: '#1d1d1f', colorBackground: '#ffffff', colorDanger: '#a3362c', borderRadius: '4px', fontFamily: 'Arial, sans-serif', fontSizeBase: '16px' }, rules: { '.Input': { borderColor: '#e4e0d8', boxShadow: 'none' }, '.Input:focus': { borderColor: '#1d1d1f', boxShadow: '0 0 0 1px #1d1d1f' } } };
+  const fuentes = [];
   const abre = z => z.classList.add('abierto'), cierra = z => z.classList.remove('abierto');
   function nota(t, suave){ aviso.textContent = t; aviso.classList.toggle('suave', !!suave); aviso.hidden = false; }
   window.addEventListener('idioma', ev => { const con = {es:'Apoyar con',en:'Support with',pt:'Apoiar com',fr:'Soutenir avec',de:'Unterstützen mit',zh:'支持',ru:'Поддержать на'}[ev.detail] || 'Apoyar con'; window.__con = con; pagar.textContent = con + ' ' + eur(); });
