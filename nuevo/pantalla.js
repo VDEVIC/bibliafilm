@@ -1,8 +1,5 @@
 'use strict';
 const $ = selector => document.querySelector(selector);
-const filmLink = $('#film-link');
-const smallScreen = matchMedia('(max-width: 850px)').matches || navigator.connection?.saveData;
-filmLink.href = smallScreen ? '/nuevo/assets/genesis-ligero.mp4?v=4' : '/nuevo/assets/genesis-movil.mp4?v=4';
 const views = ['pelicula', 'proyecto', 'apoyar'];
 let activeView = 'pelicula', viewInitialized = false;
 function viewFromHash() {
@@ -87,7 +84,7 @@ function setDuration(seconds) {
 }
 showView(viewFromHash(), false, false);
 
-// Metadata updates only the link and duration; the film is never downloaded by this page.
+// Only duration is fetched here. The player lives on its own page.
 const sourceOrigin = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'https://bibliafilm.com' : location.origin;
 fetch(sourceOrigin + '/episodios.json').then(response => {
   if (!response.ok) throw Error('metadata');
@@ -95,15 +92,6 @@ fetch(sourceOrigin + '/episodios.json').then(response => {
 }).then(data => {
   const movie = data.pelicula;
   if (!movie) return;
-  const validURL = value => {
-    const url = new URL(value, sourceOrigin + '/');
-    if (!['https://bibliafilm.com', 'https://media.bibliafilm.com'].includes(url.origin)) throw Error('Origen de vídeo no permitido');
-    return url.href;
-  };
-  if (movie.video) {
-    const source = validURL(/^https?:|^\//.test(movie.video) ? movie.video : (data.cdn || sourceOrigin + '/media').replace(/\/$/, '') + '/' + movie.video);
-    if (source !== 'https://media.bibliafilm.com/pelicula.mp4?v=clip8' && source !== filmLink.href) filmLink.href = source;
-  }
   if (movie.minutos) setDuration(Number(movie.minutos) * 60);
 }).catch(() => {});
 
