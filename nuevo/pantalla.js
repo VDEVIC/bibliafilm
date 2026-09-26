@@ -5,6 +5,16 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const mayAutoplay = !reduceMotion.matches && !navigator.connection?.saveData;
 const views = ['pelicula', 'proyecto', 'apoyar'];
 let activeView = 'pelicula', videoVisible = true, resumeWhenVisible = false;
+let filmPrepared = false;
+
+function prepareFilm() {
+  if (filmPrepared) return;
+  filmPrepared = true;
+  const smallScreen = matchMedia('(max-width: 850px)').matches || navigator.connection?.saveData;
+  video.src = smallScreen ? '/nuevo/assets/genesis-ligero.mp4?v=3' : '/nuevo/assets/genesis-movil.mp4?v=2';
+  video.preload = mayAutoplay ? 'metadata' : 'none';
+  if (mayAutoplay) video.play().catch(() => {});
+}
 
 function pauseForVisibility() {
   if (!video.paused) { resumeWhenVisible = true; video.pause(); }
@@ -32,7 +42,7 @@ function showView(name, updateURL = true, resetScroll = true) {
   }
   if (updateURL && location.hash !== '#' + name) history.pushState(null, '', '#' + name);
   if (resetScroll) window.scrollTo({top: 0, behavior: 'instant'});
-  if (name === 'pelicula') { updateRail(); resumeVideo(); }
+  if (name === 'pelicula') { measureRail(); prepareFilm(); resumeVideo(); }
 }
 document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', event => {
   event.preventDefault();
@@ -48,27 +58,35 @@ $('.view-tabs').addEventListener('keydown', event => {
   $('#tab-' + views[next]).focus({preventScroll: true});
 });
 window.addEventListener('popstate', () => showView(viewFromHash(), false));
-window.addEventListener('hashchange', () => showView(viewFromHash(), false));
+window.addEventListener('hashchange', () => {
+  if ([...views, 'aportacion', 'apoyar-proyecto'].includes(location.hash.slice(1)) && activeView !== viewFromHash()) showView(viewFromHash(), false);
+});
 
 // Native scrolling keeps the horizontal cards on the browser's scrolling path.
 const rail = $('#story-rail');
 const cards = [...rail.children];
-let railFrame = 0;
+const railCounter = $('#rail-counter'), railPrev = $('#rail-prev'), railNext = $('#rail-next'), railHint = $('#rail-hint');
+let railMax = 0, railStep = 1, railState = '', railTimer;
+function measureRail() {
+  const width = rail.clientWidth;
+  if (!width) return;
+  railMax = rail.scrollWidth - width;
+  railStep = cards[1].offsetLeft - cards[0].offsetLeft;
+  updateRail();
+}
 function updateRail() {
-  if (!rail.clientWidth) return;
-  const max = rail.scrollWidth - rail.clientWidth;
-  const step = cards[1].offsetLeft - cards[0].offsetLeft;
-  const current = max <= 2 ? cards.length : rail.scrollLeft >= max - 2 ? cards.length : Math.min(cards.length, Math.round(rail.scrollLeft / step) + 1);
-  $('#rail-counter').textContent = max <= 2 ? '3 ideas' : current + ' / ' + cards.length;
-  $('#rail-prev').disabled = rail.scrollLeft <= 2;
-  $('#rail-next').disabled = rail.scrollLeft >= max - 2;
-  $('#rail-prev').hidden = max <= 2;
-  $('#rail-next').hidden = max <= 2;
-  $('#rail-hint').textContent = max <= 2 ? 'Palabra, creación y comunidad.' : 'Desliza para descubrir más';
+  const left = rail.scrollLeft, fits = railMax <= 2, first = left <= 2, last = left >= railMax - 2;
+  const current = fits || last ? cards.length : Math.min(cards.length, Math.round(left / railStep) + 1);
+  const state = [fits, first, last, current].join(':');
+  if (state === railState) return;
+  railState = state;
+  railCounter.textContent = fits ? '3 ideas' : current + ' / ' + cards.length;
+  railPrev.disabled = first; railNext.disabled = last;
+  railPrev.hidden = fits; railNext.hidden = fits;
+  railHint.textContent = fits ? 'Palabra, creación y comunidad.' : 'Desliza para descubrir más';
 }
 function scrollRail(direction) {
-  const step = cards[1].offsetLeft - cards[0].offsetLeft;
-  rail.scrollBy({left: step * direction, behavior: reduceMotion.matches ? 'instant' : 'smooth'});
+  rail.scrollBy({left: railStep * direction, behavior: reduceMotion.matches ? 'instant' : 'smooth'});
 }
 $('#rail-prev').addEventListener('click', () => scrollRail(-1));
 $('#rail-next').addEventListener('click', () => scrollRail(1));
@@ -77,11 +95,9 @@ rail.addEventListener('keydown', event => {
     event.preventDefault(); scrollRail(event.key === 'ArrowRight' ? 1 : -1);
   }
 });
-rail.addEventListener('scroll', () => {
-  if (railFrame) return;
-  railFrame = requestAnimationFrame(() => { railFrame = 0; updateRail(); });
-}, {passive: true});
-new ResizeObserver(updateRail).observe(rail);
+if ('onscrollend' in rail) rail.addEventListener('scrollend', updateRail, {passive: true});
+else rail.addEventListener('scroll', () => { clearTimeout(railTimer); railTimer = setTimeout(updateRail, 160); }, {passive: true});
+new ResizeObserver(measureRail).observe(rail);
 
 function updateSound() {
   $('#sound-toggle').setAttribute('aria-pressed', String(!video.muted));
@@ -111,8 +127,6 @@ function setDuration(seconds) {
 }
 video.addEventListener('loadedmetadata', () => setDuration(video.duration));
 showView(viewFromHash(), false, false);
-if (!mayAutoplay) { video.autoplay = false; video.pause(); }
-else if (activeView === 'pelicula') video.play().catch(() => {});
 
 // Keep new films discoverable without reloading the already playing, optimized film.
 const sourceOrigin = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'https://bibliafilm.com' : location.origin;
@@ -130,8 +144,13 @@ fetch(sourceOrigin + '/episodios.json').then(response => {
   if (movie.video) {
     const source = validURL(/^https?:|^\//.test(movie.video) ? movie.video : (data.cdn || sourceOrigin + '/media').replace(/\/$/, '') + '/' + movie.video);
     if (source !== 'https://media.bibliafilm.com/pelicula.mp4?v=clip8' && source !== video.src) {
+      // An unoptimized future upload must not start a large background download.
+      video.pause();
+      resumeWhenVisible = false;
+      filmPrepared = true;
+      video.autoplay = false;
+      video.preload = 'none';
       video.src = source;
-      if (activeView === 'pelicula' && mayAutoplay) video.play().catch(() => {});
     }
   }
   if (movie.poster) {
