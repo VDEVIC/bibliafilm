@@ -5,15 +5,26 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const mayAutoplay = !reduceMotion.matches && !navigator.connection?.saveData;
 const views = ['pelicula', 'proyecto', 'apoyar'];
 let activeView = 'pelicula', videoVisible = true, resumeWhenVisible = false;
-let filmPrepared = false;
+let filmPrepared = false, viewInitialized = false, autoplayBlocked = false;
+
+function playFilm() {
+  video.play().catch(error => {
+    if (error.name === 'NotAllowedError') {
+      autoplayBlocked = true;
+      updateSound();
+    } else if (error.name !== 'AbortError') {
+      $('#film-error').hidden = false;
+    }
+  });
+}
 
 function prepareFilm() {
   if (filmPrepared) return;
   filmPrepared = true;
   const smallScreen = matchMedia('(max-width: 850px)').matches || navigator.connection?.saveData;
-  video.src = smallScreen ? '/nuevo/assets/genesis-ligero.mp4?v=3' : '/nuevo/assets/genesis-movil.mp4?v=2';
+  video.src = smallScreen ? '/nuevo/assets/genesis-ligero.mp4?v=4' : '/nuevo/assets/genesis-movil.mp4?v=4';
   video.preload = mayAutoplay ? 'metadata' : 'none';
-  if (mayAutoplay) video.play().catch(() => {});
+  if (mayAutoplay) playFilm();
 }
 
 function pauseForVisibility() {
@@ -22,7 +33,7 @@ function pauseForVisibility() {
 function resumeVideo() {
   if (resumeWhenVisible && activeView === 'pelicula' && videoVisible && !document.hidden) {
     resumeWhenVisible = false;
-    video.play().catch(() => {});
+    playFilm();
   }
 }
 function viewFromHash() {
@@ -31,8 +42,10 @@ function viewFromHash() {
 }
 function showView(name, updateURL = true, resetScroll = true) {
   if (!views.includes(name)) return;
+  if (viewInitialized && name === activeView) return;
   if (name !== 'pelicula') pauseForVisibility();
   activeView = name;
+  viewInitialized = true;
   for (const view of views) {
     const selected = name === view;
     $('#panel-' + view).hidden = !selected;
@@ -101,22 +114,27 @@ new ResizeObserver(measureRail).observe(rail);
 
 function updateSound() {
   $('#sound-toggle').setAttribute('aria-pressed', String(!video.muted));
-  $('#sound-label').textContent = video.muted ? 'Activar sonido' : 'Silenciar';
+  $('#sound-label').textContent = autoplayBlocked ? 'Reproducir' : video.muted ? 'Activar sonido' : 'Silenciar';
 }
 $('#sound-toggle').addEventListener('click', () => {
+  if (autoplayBlocked) { playFilm(); return; }
   video.muted = !video.muted;
   updateSound();
-  if (video.paused) video.play().catch(() => { $('#film-error').hidden = false; });
+  if (video.paused) playFilm();
 });
 video.addEventListener('volumechange', updateSound);
 video.addEventListener('playing', () => {
+  autoplayBlocked = false;
+  updateSound();
   $('#film-error').hidden = true;
   if (activeView !== 'pelicula' || !videoVisible || document.hidden) pauseForVisibility();
 });
 video.addEventListener('ended', () => { resumeWhenVisible = false; });
 video.addEventListener('error', () => { $('#film-error').hidden = false; });
 new IntersectionObserver(entries => {
-  videoVisible = entries[0].isIntersecting;
+  const latest = entries.reduce((last, entry) => entry.target === video && (!last || entry.time >= last.time) ? entry : last, null);
+  if (!latest) return;
+  videoVisible = latest.isIntersecting && latest.intersectionRatio >= 0.1;
   if (!videoVisible) pauseForVisibility(); else resumeVideo();
 }, {threshold: 0.1}).observe(video);
 document.addEventListener('visibilitychange', () => document.hidden ? pauseForVisibility() : resumeVideo());
@@ -155,7 +173,8 @@ fetch(sourceOrigin + '/episodios.json').then(response => {
   }
   if (movie.poster) {
     const poster = validURL(movie.poster);
-    if (poster !== video.poster) video.poster = poster;
+    // Keep the optimized copy of the current artwork; accept future poster updates.
+    if (poster !== 'https://bibliafilm.com/media/portada.jpg?v=leon1790360439' && poster !== video.poster) video.poster = poster;
   }
   if (movie.minutos) setDuration(Number(movie.minutos) * 60);
 }).catch(() => {});
