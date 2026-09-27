@@ -183,7 +183,7 @@ function loadScript(src) {
 }
 async function preparePayment() {
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1790515616');
+  await loadScript('/nuevo/apoyo.js?v=1790515862');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
@@ -192,6 +192,7 @@ $('#support-form').addEventListener('submit', async event => {
     custom.setCustomValidity('Elige una cantidad entre 0,50 € y 1.000 €.'); custom.reportValidity(); custom.setCustomValidity(''); return;
   }
   amount = Math.round(amount * 100) / 100; previousFocus = document.activeElement;
+  $('#payment-amount').textContent = euro(amount);
   dialog.showModal();
   if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
     $('#payment-loading').textContent = 'Vista de prueba: los pagos se activan únicamente en bibliafilm.com.'; return;

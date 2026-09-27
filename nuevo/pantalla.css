@@ -193,3 +193,11 @@ dialog{border:1px solid var(--line);border-radius:18px;padding:28px 22px;width:m
 /* «Otra cantidad»: el foco se marca en la caja redondeada entera, no con un recuadro recto en el hueco del número */
 .custom-input input:focus,.custom-input input:focus-visible{outline:0}
 .custom-amount:focus-within{border-color:#b98215;box-shadow:0 0 0 1px #b98215}
+/* ventana de pago: el importe ya se eligió en la pestaña Apoyar; no se vuelve a pedir (los botones siguen dentro, ocultos, para fijar el importe) */
+#payment-dialog .importes{display:none}
+#payment-dialog .acepto{margin-top:4px}
+/* Historia con el mismo encabezado que las otras pestañas: antetítulo + titular en serif */
+.rail-heading{align-items:end}
+.rail-heading h1{font-family:var(--serif);font-size:clamp(26px,6.9cqh,var(--h-page));line-height:1.08;letter-spacing:-1px;margin-top:8px}
+@container stage (max-height:400px){.rail-heading h1{font-size:22px;letter-spacing:-.5px}}
+@container stage (min-aspect-ratio:4/3) and (min-width:560px) and (max-height:420px){.rail-heading h1{font-size:clamp(22px,8cqh,30px)}}
