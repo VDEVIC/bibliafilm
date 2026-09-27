@@ -174,8 +174,11 @@ function abrePeli() {
   visor.hidden = false; $('#visor-cerrar').focus({preventScroll: true});
   if (!peliPreparada) {
     peliPreparada = true; vigilaArranque();
-    const nativo = visorVideo.canPlayType('application/vnd.apple.mpegurl') && !/Android/i.test(navigator.userAgent);
-    if (nativo) visorVideo.src = peliHls;      // Safari e iPhone: al momento (Android dice «maybe» pero no siempre puede)
+    // Recomendación oficial de hls.js (README): canPlayType dice «maybe» también en Chrome y Android, que luego no siempre
+    // pueden; la emisión directa solo en Safari moderno (ManagedMediaSource) o en iPhones antiguos sin MediaSource.
+    const nativo = visorVideo.canPlayType('application/vnd.apple.mpegurl') &&
+      ('ManagedMediaSource' in window || !('MediaSource' in window));
+    if (nativo) visorVideo.src = peliHls;
     else {
       cargaHlsJs().then(() => {
         if (!window.Hls.isSupported()) return respaldoPeli();
@@ -240,7 +243,7 @@ function loadScript(src) {
 }
 async function preparePayment() {
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1790542267');
+  await loadScript('/nuevo/apoyo.js?v=1790542535');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
