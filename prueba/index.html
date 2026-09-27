@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Prueba de tirones</title>
+<style>body{margin:0;background:#f6f4ed;color:#17241e;font:18px/1.5 -apple-system,system-ui,sans-serif}main{max-width:520px;margin:0 auto;padding:48px 20px}
+h1{font-size:27px;line-height:1.2;margin:0 0 14px}p{margin:0 0 24px}button{width:100%;min-height:56px;border:0;border-radius:14px;background:#13251d;color:#fff;font:600 19px -apple-system,system-ui,sans-serif}</style>
+</head>
+<body>
+<main>
+<h1 id="titulo">Prueba de los tirones</h1>
+<p id="texto">Verás 12 páginas. En cada una desliza arriba y abajo 6 veces; luego baja del todo y toca «Con tirones» o «Fluida».</p>
+<button id="empezar" type="button">Empezar</button>
+</main>
+<script>
+(function () {
+  var V = [1,2,3,4,5,6,7,8,9,10,11,12];
+  var q = new URLSearchParams(location.search);
+  if (q.get('fin')) {
+    document.getElementById('titulo').textContent = 'Hecho. Gracias.';
+    document.getElementById('texto').textContent = 'Ya tengo las medidas de las ' + V.length + ' páginas.';
+    document.getElementById('empezar').textContent = 'Repetir';
+  }
+  function azar(n) { var a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; }
+  document.getElementById('empezar').addEventListener('click', function () {
+    var o = V.slice();
+    for (var i = o.length - 1; i > 0; i--) { var j = azar(i + 1), t = o[i]; o[i] = o[j]; o[j] = t; }  // orden al azar en cada visita
+    var s = '';
+    while (s.length < 10) s += '0123456789abcdefghijklmnopqrstuvwxyz'[azar(36)];
+    location.href = '/prueba/' + o[0] + '/?s=' + s + '&o=' + o.join('-') + '&i=0';
+  });
+})();
+</script>
+</body>
+</html>

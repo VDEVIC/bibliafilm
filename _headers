@@ -18,3 +18,10 @@
 /manifest.webmanifest
   Content-Type: application/manifest+json
   Cache-Control: public, max-age=604800
+# Laboratorio de tirones (/prueba/): fuera de buscadores. La 3 y la 4 con no-transform, para que Cloudflare no les meta su analítica.
+/prueba/*
+  X-Robots-Tag: noindex
+/prueba/3/*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+/prueba/4/*
+  Cache-Control: public, max-age=0, must-revalidate, no-transform

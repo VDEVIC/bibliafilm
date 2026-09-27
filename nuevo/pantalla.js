@@ -120,7 +120,7 @@ function loadScript(src) {
 }
 async function preparePayment() {
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1790498198');
+  await loadScript('/nuevo/apoyo.js?v=1790504607');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
