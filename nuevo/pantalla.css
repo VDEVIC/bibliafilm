@@ -204,6 +204,7 @@ dialog{border:1px solid var(--line);border-radius:18px;padding:28px 22px;width:m
 /* casilla opcional de agradecimientos (permiso expreso para publicar el nombre) */
 #payment-dialog .agradecer{margin-top:-8px}
 .acepto .opcional{color:var(--muted)}
-#nombre-agradecer{display:block;width:100%;min-height:44px;margin:-6px 0 16px;padding:0 14px;border:1px solid #ccd2c3;border-radius:12px;background:transparent;color:var(--ink);font:inherit;font-size:16px}
-#nombre-agradecer[hidden]{display:none}
-#nombre-agradecer:focus{outline:0;border-color:#b98215;box-shadow:0 0 0 1px #b98215}
+#nombre-agradecer,#tiktok-agradecer{display:block;width:100%;min-height:44px;margin:-6px 0 16px;padding:0 14px;border:1px solid #ccd2c3;border-radius:12px;background:transparent;color:var(--ink);font:inherit;font-size:16px}
+#nombre-agradecer[hidden],#tiktok-agradecer[hidden]{display:none}
+#tiktok-agradecer{margin-top:-8px}
+#nombre-agradecer:focus,#tiktok-agradecer:focus{outline:0;border-color:#b98215;box-shadow:0 0 0 1px #b98215}

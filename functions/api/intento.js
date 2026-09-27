@@ -2,7 +2,7 @@
 export async function onRequestPost({ request, env }) {
   const cab = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
   try {
-    const { importe, agradecer, nombre } = await request.json();
+    const { importe, agradecer, nombre, tiktok } = await request.json();
     const cts = Math.round(Number(importe) * 100);
     if (!Number.isFinite(cts) || cts < 50 || cts > 100000) return new Response(JSON.stringify({ error: 'importe' }), { status: 400, headers: cab });
     const cuerpo = new URLSearchParams({
@@ -14,6 +14,8 @@ export async function onRequestPost({ request, env }) {
     });
     const limpio = String(nombre || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 60);
     if (agradecer === true && limpio) cuerpo.append('metadata[nombre_agradecimientos]', limpio);
+    const usuario = String(tiktok || '').trim().replace(/^@+/, '').replace(/[^A-Za-z0-9._]/g, '').slice(0, 24);
+    if (agradecer === true && usuario) cuerpo.append('metadata[tiktok_agradecimientos]', '@' + usuario);
     const r = await fetch('https://api.stripe.com/v1/payment_intents', { method: 'POST', headers: { Authorization: 'Bearer ' + env.STRIPE_SECRET_KEY, 'Content-Type': 'application/x-www-form-urlencoded' }, body: cuerpo });
     const j = await r.json();
     if (!r.ok) return new Response(JSON.stringify({ error: (j.error && j.error.message) || 'stripe' }), { status: 502, headers: cab });
