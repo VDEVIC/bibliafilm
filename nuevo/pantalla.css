@@ -3,7 +3,7 @@
 
 /* Una sola pantalla: nada se desplaza. Arriba la marca, en medio la pestaña activa, abajo la barra de pestañas. */
 html{height:100%;overflow:hidden;overscroll-behavior:none;background:var(--paper)}
-body{margin:0;position:fixed;top:0;left:0;right:0;height:100%;height:100dvh;overflow:hidden;overscroll-behavior:none;background:var(--paper)}
+body{margin:0;position:fixed;top:0;left:0;right:0;height:100%;height:100dvh;height:var(--alto,100dvh);overflow:hidden;overscroll-behavior:none;background:var(--paper)}
 .app{height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto}
 
 .topbar{padding:env(safe-area-inset-top) max(var(--pad),env(safe-area-inset-right)) 0 max(var(--pad),env(safe-area-inset-left));background:var(--paper);border-bottom:1px solid var(--line)}

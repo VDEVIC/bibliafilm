@@ -183,7 +183,7 @@ function loadScript(src) {
 }
 async function preparePayment() {
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1790515907');
+  await loadScript('/nuevo/apoyo.js?v=1790516347');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
@@ -216,3 +216,28 @@ $('#share-project').addEventListener('click', async () => {
   try { await navigator.clipboard.writeText(url); toast('Enlace copiado. Gracias por compartirlo.'); }
   catch { toast('Puedes compartir la dirección de esta página.'); }
 });
+
+// iPhone: Safari cambia el alto visible al abrir/cerrar el teclado o plegar sus barras, y a veces deja la página
+// corrida hacia arriba (se esconde la cabecera y queda un hueco bajo las pestañas). La app se ajusta siempre al
+// alto que de verdad se ve y, si no se está escribiendo, vuelve a su sitio.
+(() => {
+  const vv = window.visualViewport;
+  const escribiendo = () => /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement?.tagName || '');
+  let pendiente = 0;
+  function encaja() {
+    pendiente = 0;
+    const alto = vv ? vv.height * vv.scale : window.innerHeight;
+    if (alto > 200) document.documentElement.style.setProperty('--alto', Math.round(alto) + 'px');
+    if (!escribiendo() && (window.scrollY || document.documentElement.scrollTop || document.body.scrollTop)) {
+      window.scrollTo(0, 0); document.documentElement.scrollTop = 0; document.body.scrollTop = 0;
+    }
+  }
+  const luego = () => { if (!pendiente) pendiente = requestAnimationFrame(encaja); };
+  vv?.addEventListener('resize', luego);
+  vv?.addEventListener('scroll', luego);
+  window.addEventListener('resize', luego);
+  window.addEventListener('pageshow', luego);
+  window.addEventListener('orientationchange', () => setTimeout(encaja, 300));
+  document.addEventListener('focusout', () => setTimeout(encaja, 80));   // al cerrar el teclado
+  encaja();
+})();
