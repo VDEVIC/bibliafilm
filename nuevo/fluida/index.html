@@ -1,12 +1,24 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f6f4ed"><meta name="robots" content="noindex,follow">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="theme-color" content="#f6f4ed"><meta name="robots" content="noindex">
 <title>Biblia Film · La Biblia, hecha cine.</title>
 <meta name="description" content="La Biblia, palabra por palabra, hecha cine. Mira Génesis gratis y ayuda a crear lo que viene. Un proyecto independiente en desarrollo.">
 <meta property="og:type" content="website"><meta property="og:locale" content="es_ES"><meta property="og:title" content="Biblia Film · La Biblia, hecha cine."><meta property="og:description" content="Mira Génesis gratis. Descubre el proyecto y ayuda a crear lo que viene."><meta property="og:url" content="https://bibliafilm.com/nuevo/"><meta property="og:image" content="https://bibliafilm.com/nuevo/assets/genesis.jpg"><meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2313251d'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-family='Georgia' font-size='43' fill='%23e6c575'%3EB%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="/nuevo/pantalla.css?v=1790498198"><script src="/nuevo/pantalla.js?v=1790498198" defer></script>
+<link rel="stylesheet" href="/nuevo/pantalla.css?v=1790494751"><script src="/nuevo/pantalla.js?v=1790494751" defer></script>
+<!-- Variante de prueba: la página se desplaza dentro de body y no en el documento, para que Safari no pliegue su barra al deslizar. -->
+<!-- body llega hasta abajo del todo (100lvh) para que el contenido siga pasando por detrás de la barra de Safari; el hueco final (100lvh-100svh) deja ver el pie por encima de la barra -->
+<style>html{height:100%;overflow:hidden}body{height:100lvh;overflow-y:auto;overscroll-behavior-y:none;-webkit-overflow-scrolling:touch}body::after{content:"";display:block;height:calc(100lvh - 100svh)}</style>
+<script>(function(){var w=window.scrollTo;window.scrollTo=function(){var b=document.body;if(b&&b.scrollTo)b.scrollTo.apply(b,arguments);return w.apply(window,arguments)};
+/* el navegador solo recuerda la posición del documento al ir atrás o recargar: se guarda la de body en cada paso del historial */
+var t,g=function(){try{history.replaceState(Object.assign({},history.state,{y:document.body.scrollTop}),'')}catch(e){}};
+document.addEventListener('scroll',function(){clearTimeout(t);t=setTimeout(g,200)},{capture:true,passive:true});
+var ps=history.pushState;history.pushState=function(){clearTimeout(t);g();return ps.apply(history,arguments)};
+var ya=function(){clearTimeout(t);g()};addEventListener('pagehide',ya);
+document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('a[href^="#"]'))ya()},true);
+var pon=function(e){if(e&&e.y!=null)requestAnimationFrame(function(){document.body.scrollTop=e.y})};
+addEventListener('popstate',function(e){pon(e.state)});addEventListener('DOMContentLoaded',function(){pon(history.state)});})();</script>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
