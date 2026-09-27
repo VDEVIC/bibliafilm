@@ -14,3 +14,7 @@
 # los datos se leen siempre frescos (la web los pide con ?fecha)
 /*.json
   Cache-Control: no-cache
+# manifest PWA (Añadir a pantalla de inicio)
+/manifest.webmanifest
+  Content-Type: application/manifest+json
+  Cache-Control: public, max-age=604800
