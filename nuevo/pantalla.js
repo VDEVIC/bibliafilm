@@ -163,11 +163,19 @@ function cargaHlsJs() {
   });
 }
 function respaldoPeli() { if (hlsPeli) { hlsPeli.destroy(); hlsPeli = null; } visorVideo.src = peliMp4; visorVideo.play().catch(() => {}); }
+// Si a los 8 s no ha echado a andar (algunos Android dicen que leen la emisión por trozos y se quedan cargando sin dar
+// error), se pasa al mp4 de respaldo. Comentario de un espectador en TikTok, 27-sep: «no funciona la aplicación».
+function vigilaArranque() {
+  setTimeout(() => {
+    if (!visor.hidden && visorVideo.currentTime < 0.3 && visorVideo.readyState < 3 && visorVideo.src !== peliMp4) respaldoPeli();
+  }, 8000);
+}
 function abrePeli() {
   visor.hidden = false; $('#visor-cerrar').focus({preventScroll: true});
   if (!peliPreparada) {
-    peliPreparada = true;
-    if (visorVideo.canPlayType('application/vnd.apple.mpegurl')) visorVideo.src = peliHls;      // Safari e iPhone: al momento
+    peliPreparada = true; vigilaArranque();
+    const nativo = visorVideo.canPlayType('application/vnd.apple.mpegurl') && !/Android/i.test(navigator.userAgent);
+    if (nativo) visorVideo.src = peliHls;      // Safari e iPhone: al momento (Android dice «maybe» pero no siempre puede)
     else {
       cargaHlsJs().then(() => {
         if (!window.Hls.isSupported()) return respaldoPeli();
@@ -232,7 +240,7 @@ function loadScript(src) {
 }
 async function preparePayment() {
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1790530266');
+  await loadScript('/nuevo/apoyo.js?v=1790542267');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
