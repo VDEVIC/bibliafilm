@@ -159,7 +159,7 @@ fetch(sourceOrigin + '/episodios.json').then(response => {
 }).catch(() => {});
 
 let amount = 5, paymentReady, previousFocus;
-const euro = number => new Intl.NumberFormat('es-ES', {style: 'currency', currency: 'EUR', maximumFractionDigits: 2}).format(number);
+const euro = number => new Intl.NumberFormat('es-ES', {style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(number) ? 0 : 2, maximumFractionDigits: 2}).format(number);   // 5 €, 7,50 €
 function toast(text) {
   const element = $('#toast'); element.textContent = text; element.classList.add('visible');
   clearTimeout(toast.timer); toast.timer = setTimeout(() => element.classList.remove('visible'), 3500);
@@ -183,7 +183,7 @@ function loadScript(src) {
 }
 async function preparePayment() {
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1790515862');
+  await loadScript('/nuevo/apoyo.js?v=1790515907');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
