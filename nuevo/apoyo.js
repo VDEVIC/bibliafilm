@@ -5,7 +5,14 @@
   const boton = $('apoyar'), pagar = $('pagar'), aviso = $('aviso'), otro = $('otro'), marcas = $('marcas');
   const zonas = { eligir: $('zEligir'), importes: $('zImportes'), apple: $('zApple'), google: $('zGoogle'), tarjeta: $('zTarjeta') };
   const chips = [...document.querySelectorAll('#importes button')], iconos = [...document.querySelectorAll('#marcas button')], acepto = $('acepto');
-  const aceptado = () => { if (acepto.checked) return true; nota('Marca la casilla de las condiciones para continuar.', true); acepto.focus(); return false; };
+  const agradecer = $('agradecer'), nombreAgr = $('nombre-agradecer');
+  const nombrePublico = () => (nombreAgr.value || '').replace(/[\u0000-\u001f<>]/g, '').trim().slice(0, 60);
+  const aceptado = () => {
+    if (!acepto.checked) { nota('Marca la casilla de las condiciones para continuar.', true); acepto.focus(); return false; }
+    if (agradecer.checked && !nombrePublico()) { nota('Escribe cómo quieres que aparezca tu nombre, o desmarca la casilla de los agradecimientos.', true); nombreAgr.focus(); return false; }
+    return true;
+  };
+  agradecer.onchange = () => { nombreAgr.hidden = !agradecer.checked; if (agradecer.checked) nombreAgr.focus(); aviso.hidden = true; };
   let importe = 5, metodo = null, ocupado = false, servidorOk = true;
   const disponible = { apple: null, google: null, tarjeta: true };
   const cts = () => Math.round(importe * 100);
@@ -66,7 +73,7 @@
   iconos.forEach(b => b.onclick = () => elige(b.dataset.m));
 
   async function intento(){
-    const r = await fetch('/api/intento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ importe }) });
+    const r = await fetch('/api/intento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ importe, agradecer: agradecer.checked, nombre: agradecer.checked ? nombrePublico() : '' }) });
     const j = await r.json(); if (!r.ok || !j.clientSecret) throw new Error(j.error || 'No se ha podido preparar el pago'); return j.clientSecret;
   }
   async function confirma(){

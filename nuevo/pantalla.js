@@ -173,7 +173,7 @@ document.querySelectorAll('[data-amount]').forEach(button => button.addEventList
 $('#custom-amount').addEventListener('input', event => selectAmount(event.target.value ? Number(event.target.value) : 5));
 const dialog = $('#payment-dialog');
 $('.dialog-close').addEventListener('click', () => dialog.close());
-dialog.addEventListener('close', () => { $('#acepto').checked = false; previousFocus?.focus({preventScroll: true}); });
+dialog.addEventListener('close', () => { $('#acepto').checked = false; if ($('#agradecer')) { $('#agradecer').checked = false; $('#nombre-agradecer').hidden = true; } previousFocus?.focus({preventScroll: true}); });
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script'); script.src = src; script.onload = resolve;
@@ -183,7 +183,7 @@ function loadScript(src) {
 }
 async function preparePayment() {
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1790524489');
+  await loadScript('/nuevo/apoyo.js?v=1790524588');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
