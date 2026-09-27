@@ -147,7 +147,49 @@ function setDuration(seconds) {
 }
 showView(viewFromHash() || 'pelicula', false);
 
-// Only duration is fetched here. The player lives on its own page.
+// La película se abre encima de la portada, sin ir a otra página: el navegador de TikTok, en algunos móviles, no deja
+// abrir /nuevo/ver/ («Abre este enlace en el navegador»). Misma emisión por trozos que /nuevo/ver/ (Safari la lee sola; el
+// resto con hls.js) y el mp4 de respaldo. /nuevo/ver/ sigue existiendo para quien abra el enlace aparte.
+const HLSJS = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js';
+const HLSJS_SRI = 'sha512-laeOywAR8veaLuF0pnbe9aXnZF0OhY25VdUkVgeRDUezc5IB1XVvqNYASMEVLh2nFvLEX/MStxGvpaNoVH6hRQ==';
+let peliHls = 'https://media.bibliafilm.com/hls/clip8/pelicula.m3u8', peliMp4 = 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip8';
+let peliPreparada = false, hlsPeli = null;
+const visor = $('#visor'), visorVideo = $('#visor-video');
+function cargaHlsJs() {
+  return new Promise((resolve, reject) => {
+    if (window.Hls) return resolve();
+    const s = document.createElement('script'); s.src = HLSJS; s.integrity = HLSJS_SRI; s.crossOrigin = 'anonymous';
+    s.onload = resolve; s.onerror = () => { s.remove(); reject(Error('hls.js')); }; document.head.append(s);
+  });
+}
+function respaldoPeli() { if (hlsPeli) { hlsPeli.destroy(); hlsPeli = null; } visorVideo.src = peliMp4; visorVideo.play().catch(() => {}); }
+function abrePeli() {
+  visor.hidden = false; $('#visor-cerrar').focus({preventScroll: true});
+  if (!peliPreparada) {
+    peliPreparada = true;
+    if (visorVideo.canPlayType('application/vnd.apple.mpegurl')) visorVideo.src = peliHls;      // Safari e iPhone: al momento
+    else {
+      cargaHlsJs().then(() => {
+        if (!window.Hls.isSupported()) return respaldoPeli();
+        hlsPeli = new window.Hls(); hlsPeli.on(window.Hls.Events.ERROR, (_, d) => { if (d.fatal) respaldoPeli(); });
+        hlsPeli.loadSource(peliHls); hlsPeli.attachMedia(visorVideo); visorVideo.play().catch(() => {});
+      }).catch(respaldoPeli);
+      return;
+    }
+  }
+  visorVideo.play().catch(() => {});
+}
+function cierraPeli() { visorVideo.pause(); visor.hidden = true; }
+$('#film-link').addEventListener('click', event => {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button) return;   // abrir aparte sigue funcionando
+  event.preventDefault(); abrePeli();
+});
+$('#visor-cerrar').addEventListener('click', cierraPeli);
+document.addEventListener('keydown', event => { if (event.key === 'Escape' && !visor.hidden) cierraPeli(); });
+visorVideo.addEventListener('error', () => { if (!hlsPeli && visorVideo.src !== peliMp4) respaldoPeli(); });
+window.addEventListener('pagehide', () => visorVideo.pause());
+
+// Duration and the film's current sources come from episodios.json.
 const sourceOrigin = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'https://bibliafilm.com' : location.origin;
 fetch(sourceOrigin + '/episodios.json').then(response => {
   if (!response.ok) throw Error('metadata');
@@ -156,6 +198,13 @@ fetch(sourceOrigin + '/episodios.json').then(response => {
   const movie = data.pelicula;
   if (!movie) return;
   if (movie.minutos) setDuration(Number(movie.minutos) * 60);
+  if (peliPreparada) return;                    // una respuesta lenta nunca cambia una película ya en marcha
+  const cdn = (data.cdn || 'https://media.bibliafilm.com').replace(/\/$/, '');
+  const url = v => v ? new URL(/^https?:|^\//.test(v) ? v : cdn + '/' + v, sourceOrigin + '/') : null;
+  const vale = u => u && ['https://bibliafilm.com', 'https://www.bibliafilm.com', 'https://media.bibliafilm.com'].includes(u.origin);
+  const m3u8 = url(movie.video), mp4 = url(movie.mp4);
+  if (vale(m3u8) && /\.m3u8(\?|$)/.test(m3u8.pathname)) peliHls = m3u8.href;
+  if (vale(mp4) && /\.mp4(\?|$)/.test(mp4.pathname)) peliMp4 = mp4.href;
 }).catch(() => {});
 
 let amount = 5, paymentReady, previousFocus;
@@ -183,7 +232,7 @@ function loadScript(src) {
 }
 async function preparePayment() {
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1790524980');
+  await loadScript('/nuevo/apoyo.js?v=1790530266');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();

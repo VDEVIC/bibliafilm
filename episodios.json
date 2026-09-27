@@ -8,10 +8,10 @@
  },
  "total": 456,
  "pelicula": {
-  "video": "hls/clip8/pelicula.m3u8",
-  "mp4": "pelicula-720.mp4?v=clip8",
+  "video": "hls/clip9/pelicula.m3u8",
+  "mp4": "pelicula-720.mp4?v=clip9",
   "poster": "./media/portada.jpg?v=leon1790360439",
-  "minutos": 3.9
+  "minutos": 4.2
  },
  "episodios": [
   {
