@@ -190,3 +190,6 @@ dialog{border:1px solid var(--line);border-radius:18px;padding:28px 22px;width:m
 @media(orientation:landscape) and (max-height:500px){:root{--top-h:44px;--tab-h:46px}.brand-icon{width:28px;height:28px;font-size:20px}.header-share{min-height:40px;min-width:40px}.tab{flex-direction:row;gap:6px;font-size:12px}.tab-icon{width:40px;height:26px}}
 
 @media(prefers-reduced-motion:reduce){.view-panel.activo,.story-track,.rail-dots button::before{transition:none}}
+/* «Otra cantidad»: el foco se marca en la caja redondeada entera, no con un recuadro recto en el hueco del número */
+.custom-input input:focus,.custom-input input:focus-visible{outline:0}
+.custom-amount:focus-within{border-color:#b98215;box-shadow:0 0 0 1px #b98215}

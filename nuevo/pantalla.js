@@ -183,7 +183,7 @@ function loadScript(src) {
 }
 async function preparePayment() {
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1790514657');
+  await loadScript('/nuevo/apoyo.js?v=1790515616');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
@@ -207,7 +207,7 @@ $('#support-form').addEventListener('submit', async event => {
   } catch (error) { $('#payment-loading').textContent = error.message + ' Puedes volver a intentarlo cerrando esta ventana.'; }
 });
 $('#share-project').addEventListener('click', async () => {
-  const url = 'https://bibliafilm.com/nuevo/';
+  const url = 'https://bibliafilm.com/';
   if (navigator.share) {
     try { await navigator.share({title: 'Biblia Film · La Biblia, hecha cine', text: 'Mira Génesis gratis y ayuda a crear lo que viene.', url}); return; }
     catch (error) { if (error.name === 'AbortError') return; }
