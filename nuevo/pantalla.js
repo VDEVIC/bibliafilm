@@ -220,6 +220,39 @@ fetch(sourceOrigin + '/episodios.json').then(response => {
 
 let amount = 5, paymentReady, previousFocus;
 const euro = number => new Intl.NumberFormat('es-ES', {style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(number) ? 0 : 2, maximumFractionDigits: 2}).format(number);   // 5 €, 7,50 €
+// Moneda de quien visita (functions/api/moneda.js, Vic 29-sep-2026: «en Colombia le aparece en euros»): los importes y
+// el botón salen en su moneda y se paga en ella (Stripe nos ingresa en euros). ?moneda=cop la fuerza para probar.
+let moneda = {moneda: 'eur', dec: 2, paso: .01, min: .5, max: 1000, importes: [3, 5, 10, 20]};
+window.__moneda = moneda;
+const money = number => moneda.moneda === 'eur' ? euro(number)
+  : new Intl.NumberFormat('es-ES', {useGrouping: 'always', minimumFractionDigits: Number.isInteger(number) ? 0 : 2, maximumFractionDigits: 2}).format(number) + ' ' + moneda.moneda.toUpperCase();   // 20.000 COP
+function applyCurrency(data) {
+  moneda = data; window.__moneda = data;
+  document.querySelectorAll('[data-amount]').forEach((button, i) => {
+    const value = data.importes[i]; if (value == null) return;
+    button.dataset.amount = String(value); button.setAttribute('aria-label', money(value));
+    button.textContent = new Intl.NumberFormat('es-ES', {useGrouping: 'always'}).format(value);   // en el móvil solo cabe la cifra
+  });
+  const input = $('#custom-amount');
+  input.min = String(data.min); input.max = String(data.max); input.step = String(data.paso); input.value = '';
+  input.setAttribute('aria-label', 'Otra cantidad en ' + data.moneda.toUpperCase());
+  if (input.nextElementSibling) input.nextElementSibling.textContent = data.moneda.toUpperCase();
+  selectAmount(data.importes[1]);
+}
+const monedaForzada = (new URLSearchParams(location.search).get('moneda') || '').replace(/[^a-z]/gi, '').toLowerCase();
+// se pide una sola vez, al acercarse al apoyo (no en cada visita), y el pago siempre la espera: nunca se cobra una cifra
+// pensada en otra moneda
+let monedaLista = null;
+const pideMoneda = () => monedaLista || (monedaLista = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? Promise.resolve()
+  : fetch('/api/moneda' + (monedaForzada ? '?m=' + monedaForzada : ''), {cache: 'no-store'})
+    .then(response => response.ok ? response.json() : null)
+    .then(data => { if (data && data.moneda && data.moneda !== 'eur' && Array.isArray(data.importes) && data.importes.length) applyCurrency(data); })
+    .catch(() => {}));
+if (monedaForzada || !('IntersectionObserver' in window)) pideMoneda();
+else {
+  const vigia = new IntersectionObserver(entries => { if (entries.some(e => e.isIntersecting)) { vigia.disconnect(); pideMoneda(); } }, {rootMargin: '600px'});
+  const tarjetaApoyo = document.querySelector('#support-form'); if (tarjetaApoyo) vigia.observe(tarjetaApoyo); else pideMoneda();
+}
 function toast(text) {
   const element = $('#toast'); element.textContent = text; element.classList.add('visible');
   clearTimeout(toast.timer); toast.timer = setTimeout(() => element.classList.remove('visible'), 3500);
@@ -227,10 +260,10 @@ function toast(text) {
 function selectAmount(number) {
   amount = number;
   document.querySelectorAll('[data-amount]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.amount) === number && !$('#custom-amount').value)));
-  $('#support-label').textContent = Number.isFinite(number) && number >= .5 && number <= 1000 ? 'Continuar con ' + euro(number) : 'Elige una cantidad';
+  $('#support-label').textContent = Number.isFinite(number) && number >= moneda.min && number <= moneda.max ? 'Continuar con ' + money(number) : 'Elige una cantidad';
 }
 document.querySelectorAll('[data-amount]').forEach(button => button.addEventListener('click', () => { $('#custom-amount').value = ''; selectAmount(Number(button.dataset.amount)); }));
-$('#custom-amount').addEventListener('input', event => selectAmount(event.target.value ? Number(event.target.value) : 5));
+$('#custom-amount').addEventListener('input', event => selectAmount(event.target.value ? Number(event.target.value) : moneda.importes[1]));
 const dialog = $('#payment-dialog');
 $('.dialog-close').addEventListener('click', () => dialog.close());
 dialog.addEventListener('close', () => { $('#acepto').checked = false; if ($('#agradecer')) { $('#agradecer').checked = false; $('#nombre-agradecer').hidden = true; $('#tiktok-agradecer').hidden = true; } previousFocus?.focus({preventScroll: true}); });
@@ -242,17 +275,19 @@ function loadScript(src) {
   });
 }
 async function preparePayment() {
+  await pideMoneda();
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1790628020');
+  await loadScript('/nuevo/apoyo.js?v=1790635117');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
+  await pideMoneda();
   const custom = $('#custom-amount');
-  if (!Number.isFinite(amount) || amount < .5 || amount > 1000) {
-    custom.setCustomValidity('Elige una cantidad entre 0,50 € y 1.000 €.'); custom.reportValidity(); custom.setCustomValidity(''); return;
+  if (!Number.isFinite(amount) || amount < moneda.min || amount > moneda.max) {
+    custom.setCustomValidity('Elige una cantidad entre ' + money(moneda.min) + ' y ' + money(moneda.max) + '.'); custom.reportValidity(); custom.setCustomValidity(''); return;
   }
-  amount = Math.round(amount * 100) / 100; previousFocus = document.activeElement;
-  $('#payment-amount').textContent = euro(amount);
+  amount = moneda.paso >= 1 ? Math.round(amount) : Math.round(amount * 100) / 100; previousFocus = document.activeElement;
+  $('#payment-amount').textContent = money(amount);
   dialog.showModal();
   if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
     $('#payment-loading').textContent = 'Vista de prueba: los pagos se activan únicamente en bibliafilm.com.'; return;

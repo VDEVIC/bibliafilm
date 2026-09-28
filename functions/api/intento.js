@@ -1,12 +1,21 @@
-// Crea el cobro (PaymentIntent) para el apoyo. Importe libre entre 0,50 € (mínimo de Stripe) y 1000 €. Corre en Cloudflare Pages.
+// Crea el cobro (PaymentIntent) para el apoyo, en la moneda de quien apoya (ver moneda.js). Importe libre entre el mínimo
+// y el máximo de esa moneda (en euros, de 0,50 € a 1000 €). Corre en Cloudflare Pages.
+import { MONEDAS } from './moneda.js';
+
 export async function onRequestPost({ request, env }) {
   const cab = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' };
   try {
-    const { importe, agradecer, nombre, tiktok } = await request.json();
-    const cts = Math.round(Number(importe) * 100);
-    if (!Number.isFinite(cts) || cts < 50 || cts > 100000) return new Response(JSON.stringify({ error: 'importe' }), { status: 400, headers: cab });
+    const { importe, moneda, agradecer, nombre, tiktok } = await request.json();
+    const codigo = String(moneda || 'eur').toLowerCase();
+    if (!Object.prototype.hasOwnProperty.call(MONEDAS, codigo)) return new Response(JSON.stringify({ error: 'moneda' }), { status: 400, headers: cab });
+    const M = MONEDAS[codigo];
+    const valor = Number(importe);
+    if (!Number.isFinite(valor) || valor < M.min || valor > M.max) return new Response(JSON.stringify({ error: 'importe' }), { status: 400, headers: cab });
+    // en las monedas sin céntimos de uso (pesos, soles…) el importe va en unidades enteras
+    const unidades = M.paso >= 1 ? Math.round(valor) : valor;
+    const cts = Math.round(unidades * 10 ** M.dec);
     const cuerpo = new URLSearchParams({
-      amount: String(cts), currency: 'eur', description: 'Apoyo a Biblia Film',
+      amount: String(cts), currency: codigo, description: 'Apoyo a Biblia Film',
       'payment_method_types[0]': 'card', statement_descriptor_suffix: 'APOYO',
       'metadata[proyecto]': 'bibliafilm', 'metadata[origen]': 'web',
       // permiso expreso para salir en los agradecimientos (casilla opcional, desmarcada por defecto) y el nombre que eligió

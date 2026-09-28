@@ -15,10 +15,19 @@
     return true;
   };
   agradecer.onchange = () => { nombreAgr.hidden = tiktokAgr.hidden = !agradecer.checked; if (agradecer.checked) nombreAgr.focus(); aviso.hidden = true; };
-  let importe = 5, metodo = null, ocupado = false, servidorOk = true;
+  // la moneda de quien apoya la decide la página (pantalla.js → /api/moneda); por defecto, euros
+  const M = window.__moneda || { moneda: 'eur', dec: 2, paso: 0.01, min: 0.5, max: 1000, importes: [3, 5, 10, 20] };
+  const fmt = v => M.moneda === 'eur' ? v.toLocaleString('es-ES') + ' €' : new Intl.NumberFormat('es-ES', { useGrouping: 'always', maximumFractionDigits: 2 }).format(v) + ' ' + M.moneda.toUpperCase();
+  let importe = M.importes[1], metodo = null, ocupado = false, servidorOk = true;
   const disponible = { apple: null, google: null, tarjeta: true };
-  const cts = () => Math.round(importe * 100);
-  const eur = () => importe.toLocaleString('es-ES') + ' €';
+  const cts = () => Math.round(importe * Math.pow(10, M.dec));
+  const eur = () => fmt(importe);
+  // los botones de importe y la casilla «otro» de esta ventana, en esa moneda
+  chips.forEach((b, i) => { const v = M.importes[i]; if (v == null) return; b.dataset.v = String(v); b.setAttribute('aria-label', fmt(v)); b.textContent = M.moneda === 'eur' ? fmt(v) : new Intl.NumberFormat('es-ES', { useGrouping: 'always' }).format(v); });
+  otro.min = String(M.min); otro.max = String(M.max); otro.step = String(M.paso);
+  otro.setAttribute('aria-label', 'Otra aportación en ' + (M.moneda === 'eur' ? 'euros' : M.moneda.toUpperCase()));
+  if (otro.previousElementSibling) otro.previousElementSibling.textContent = M.moneda === 'eur' ? '€' : M.moneda.toUpperCase();
+  pagar.textContent = 'Apoyar con ' + eur();
   const aspecto = { theme: 'stripe', variables: { colorPrimary: '#243724', colorText: '#1d1d1f', colorBackground: '#ffffff', colorDanger: '#a3362c', borderRadius: '4px', fontFamily: 'Arial, sans-serif', fontSizeBase: '16px' }, rules: { '.Input': { borderColor: '#e4e0d8', boxShadow: 'none' }, '.Input:focus': { borderColor: '#1d1d1f', boxShadow: '0 0 0 1px #1d1d1f' } } };
   const fuentes = [];
   const abre = z => z.classList.add('abierto'), cierra = z => z.classList.remove('abierto');
@@ -34,7 +43,7 @@
   function monta(){
     if (els) return;
     stripe = Stripe(PK);
-    const base = { mode: 'payment', currency: 'eur', appearance: aspecto, fonts: fuentes, locale: 'es', paymentMethodTypes: ['card'] };
+    const base = { mode: 'payment', currency: M.moneda, appearance: aspecto, fonts: fuentes, locale: 'es', paymentMethodTypes: ['card'] };
     const nunca = { link: 'never', amazonPay: 'never', paypal: 'never', klarna: 'never' };
     const nuevo = () => stripe.elements(Object.assign({ amount: cts() }, base));
     els = { apple: nuevo(), google: nuevo(), tarjeta: nuevo() };
@@ -58,7 +67,8 @@
   }
 
   function fija(v, desdeChip){
-    importe = Math.max(0.5, Math.min(1000, Math.round((Number(v) || 0.5) * 100) / 100));
+    const n = Number(v) || M.min;
+    importe = Math.max(M.min, Math.min(M.max, M.paso >= 1 ? Math.round(n) : Math.round(n * 100) / 100));
     chips.forEach(b => b.classList.toggle('on', desdeChip && Number(b.dataset.v) === importe));
     if (els) Object.values(els).forEach(e => e.update({ amount: cts() })); pagar.textContent = (window.__con || 'Apoyar con') + ' ' + eur();
   }
@@ -75,7 +85,7 @@
   iconos.forEach(b => b.onclick = () => elige(b.dataset.m));
 
   async function intento(){
-    const r = await fetch('/api/intento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ importe, agradecer: agradecer.checked, nombre: agradecer.checked ? nombrePublico() : '', tiktok: agradecer.checked ? tiktok() : '' }) });
+    const r = await fetch('/api/intento', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ importe, moneda: M.moneda, agradecer: agradecer.checked, nombre: agradecer.checked ? nombrePublico() : '', tiktok: agradecer.checked ? tiktok() : '' }) });
     const j = await r.json(); if (!r.ok || !j.clientSecret) throw new Error(j.error || 'No se ha podido preparar el pago'); return j.clientSecret;
   }
   async function confirma(){
@@ -86,7 +96,7 @@
       const clientSecret = await intento();
       const { error } = await stripe.confirmPayment({ elements, clientSecret, confirmParams: { return_url: location.origin + '/gracias.html' } });
       if (error) throw error;
-    } catch (e) { nota(e.message || 'No se ha podido completar el pago.'); }
+    } catch (e) { nota((e.message || 'No se ha podido completar el pago.') + (M.moneda !== 'eur' && e.type === 'card_error' ? ' Si es American Express, prueba con Visa o Mastercard.' : '')); }
     finally { ocupado = false; pagar.disabled = false; }
   }
   pagar.onclick = () => { if (aceptado()) confirma(); };
