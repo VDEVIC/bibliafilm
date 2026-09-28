@@ -8,8 +8,8 @@ const duration = document.querySelector('#duration');
 // Nunca se sirve el archivo original entero. Safari la lee sola; el resto usa hls.js.
 const HLSJS = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js';
 const HLSJS_SRI = 'sha512-laeOywAR8veaLuF0pnbe9aXnZF0OhY25VdUkVgeRDUezc5IB1XVvqNYASMEVLh2nFvLEX/MStxGvpaNoVH6hRQ==';
-let source = 'https://media.bibliafilm.com/hls/clip8/pelicula.m3u8';
-let fallback = 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip8';
+let source = 'https://media.bibliafilm.com/hls/clip9d/pelicula.m3u8';
+let fallback = 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip9d';
 const native = film.canPlayType('application/vnd.apple.mpegurl');
 let hls = null, ready = null, started = false, loading = false;
 direct.href = fallback;
@@ -31,7 +31,7 @@ async function prepare() {
   try { if (!window.Hls) await loadScript(HLSJS); } catch { useFallback(); return; }
   if (!Hls.isSupported()) { useFallback(); return; }
   // en reposo solo se adelantan 6 s (como hace Safari con preload="metadata"); al reproducir, 30 s
-  hls = new Hls({maxBufferLength: 6});
+  hls = new Hls({maxBufferLength: 6, capLevelToPlayerSize: true});
   hls.on(Hls.Events.ERROR, (_, data) => { if (data.fatal) useFallback(); });
   hls.loadSource(source);
   hls.attachMedia(film);
