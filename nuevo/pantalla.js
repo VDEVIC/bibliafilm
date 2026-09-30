@@ -152,7 +152,7 @@ showView(viewFromHash() || 'pelicula', false);
 // resto con hls.js) y el mp4 de respaldo. /nuevo/ver/ sigue existiendo para quien abra el enlace aparte.
 const HLSJS = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js';
 const HLSJS_SRI = 'sha512-laeOywAR8veaLuF0pnbe9aXnZF0OhY25VdUkVgeRDUezc5IB1XVvqNYASMEVLh2nFvLEX/MStxGvpaNoVH6hRQ==';
-let peliHls = 'https://media.bibliafilm.com/hls/clip11/pelicula.m3u8', peliMp4 = 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip11';
+let peliHls = 'https://media.bibliafilm.com/hls/clip12/pelicula.m3u8', peliMp4 = 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip12';
 let peliPreparada = false, hlsPeli = null;
 const visor = $('#visor'), visorVideo = $('#visor-video');
 function cargaHlsJs() {
@@ -277,7 +277,7 @@ function loadScript(src) {
 async function preparePayment() {
   await pideMoneda();
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1790678602');
+  await loadScript('/nuevo/apoyo.js?v=1790772971');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
