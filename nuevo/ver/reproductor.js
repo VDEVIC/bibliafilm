@@ -8,8 +8,8 @@ const duration = document.querySelector('#duration');
 // Nunca se sirve el archivo original entero. Safari la lee sola; el resto usa hls.js.
 const HLSJS = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js';
 const HLSJS_SRI = 'sha512-laeOywAR8veaLuF0pnbe9aXnZF0OhY25VdUkVgeRDUezc5IB1XVvqNYASMEVLh2nFvLEX/MStxGvpaNoVH6hRQ==';
-let source = 'https://media.bibliafilm.com/hls/clip12/pelicula.m3u8';
-let fallback = 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip12';
+let source = 'https://media.bibliafilm.com/hls/clip13/pelicula.m3u8';
+let fallback = 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip13';
 const native = film.canPlayType('application/vnd.apple.mpegurl');
 let hls = null, ready = null, started = false, loading = false;
 direct.href = fallback;
