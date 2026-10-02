@@ -277,7 +277,7 @@ function loadScript(src) {
 async function preparePayment() {
   await pideMoneda();
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1790852621');
+  await loadScript('/nuevo/apoyo.js?v=1790965295');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
