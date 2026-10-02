@@ -25,3 +25,6 @@
   Cache-Control: public, max-age=0, must-revalidate, no-transform
 /prueba/4/*
   Cache-Control: public, max-age=0, must-revalidate, no-transform
+# Plan de ingresos de Vic (/plan/): fuera de buscadores
+/plan/*
+  X-Robots-Tag: noindex
