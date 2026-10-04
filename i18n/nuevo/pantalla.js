@@ -1,6 +1,50 @@
 'use strict';
 const $ = selector => document.querySelector(selector);
 
+// Idioma de la página, de <html lang>: es (bibliafilm.com/), en (/en/) o pt (/pt/). Los textos de esta JS salen en
+// español; las copias /en/ y /pt/ (las genera 10-idiomas/web-i18n/construir.py) traen los suyos en
+// <script type="application/json" id="textos">, que sustituyen a estos. La portada española no lleva ese bloque: lee igual que siempre.
+const LANG = (/^(en|pt)\b/i.exec(document.documentElement.lang || '') || ['es'])[0].toLowerCase();
+const LOCALE = {es: 'es-ES', en: 'en-US', pt: 'pt-BR'}[LANG];
+const T = Object.assign({
+  tarjetaDe: 'Tarjeta {n} de {total}',
+  otraCantidadEn: 'Otra cantidad en {moneda}',
+  continuarCon: 'Continuar con {importe}',
+  eligeCantidad: 'Elige una cantidad',
+  sinConexionPago: 'No se ha podido conectar con el servicio de pago.',
+  cantidadEntre: 'Elige una cantidad entre {min} y {max}.',
+  vistaPrueba: 'Vista de prueba: los pagos se activan únicamente en bibliafilm.com.',
+  entornoPruebas: 'Entorno de pruebas: pagos desactivados',
+  reintentar: '{error} Puedes volver a intentarlo cerrando esta ventana.',
+  compartirUrl: 'https://bibliafilm.com/',
+  compartirTitulo: 'Biblia Film · La Biblia, hecha cine',
+  compartirTexto: 'Mira Génesis gratis y ayuda a crear lo que viene.',
+  enlaceCopiado: 'Enlace copiado. Gracias por compartirlo.',
+  compartirDireccion: 'Puedes compartir la dirección de esta página.'
+}, (() => { try { return JSON.parse($('#textos')?.textContent || '{}'); } catch { return {}; } })());
+const t = (key, values = {}) => String(T[key] ?? '').replace(/\{(\w+)\}/g, (all, name) => name in values ? values[name] : all);
+// Entorno de pruebas (vista previa de Cloudflare Pages, *.pages.dev): nunca se monta el pago.
+const PRUEBAS = /\.pages\.dev$/i.test(location.hostname);
+
+// Selector de idioma (ES · EN · PT): guarda la elección en la cookie «idioma» (la lee functions/index.js al entrar por
+// bibliafilm.com/) y conserva la pestaña abierta (#apoyar…). Entrar por /en/ o /pt/ también la guarda: esa puerta manda.
+// Las pastillas de la portada van a bibliafilm.com/?idioma=es|en|pt: la puerta guarda la cookie desde el servidor (dura un
+// año también en Safari, que borra a los 7 días las que escribe la JS) y lleva a /, /en/ o /pt/; sin JS funcionan igual.
+function guardaIdioma(lang) {
+  try { document.cookie = 'idioma=' + lang + '; Path=/; Max-Age=31536000; SameSite=Lax; Secure'; } catch {}
+}
+if (LANG !== 'es') guardaIdioma(LANG);
+document.querySelectorAll('.idiomas a[data-idioma]').forEach(link => link.addEventListener('click', event => {
+  if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button) return;
+  event.preventDefault();
+  guardaIdioma(link.dataset.idioma);
+  if (link.dataset.idioma === LANG) return;
+  let destino = link.getAttribute('href').split('#')[0];
+  // en local (python -m http.server) no hay puerta: directo a la portada del idioma
+  if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) destino = destino.replace(/^\/\?idioma=(es|en|pt)$/, (all, l) => l === 'es' ? '/' : '/' + l + '/');
+  location.href = destino + location.hash;   // la redirección de la puerta conserva el #apoyar…
+}));
+
 // Pestañas: una sola pantalla, cada pestaña ya está montada; cambiar es mostrar una y ocultar las demás.
 const views = ['pelicula', 'historia', 'proyecto', 'apoyar'];
 const aliases = {aportacion: 'apoyar', 'apoyar-proyecto': 'apoyar'};
@@ -68,7 +112,7 @@ function goTo(index, animate = true) {
   railNext.disabled = slide === lastSlide();
   dots.forEach((dot, k) => dot.setAttribute('aria-current', String(k === slide)));
   cards.forEach((card, k) => card.setAttribute('aria-hidden', String(k < slide || k >= slide + perView)));
-  railCounter.textContent = fits ? '' : 'Tarjeta ' + (slide + 1) + ' de ' + cards.length;
+  railCounter.textContent = fits ? '' : t('tarjetaDe', {n: slide + 1, total: cards.length});
 }
 railPrev.addEventListener('click', () => { goTo(slide - 1); if (railPrev.disabled) railNext.focus(); });
 railNext.addEventListener('click', () => { goTo(slide + 1); if (railNext.disabled) railPrev.focus(); });
@@ -152,9 +196,26 @@ showView(viewFromHash() || 'pelicula', false);
 // resto con hls.js) y el mp4 de respaldo. /nuevo/ver/ sigue existiendo para quien abra el enlace aparte.
 const HLSJS = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js';
 const HLSJS_SRI = 'sha512-laeOywAR8veaLuF0pnbe9aXnZF0OhY25VdUkVgeRDUezc5IB1XVvqNYASMEVLh2nFvLEX/MStxGvpaNoVH6hRQ==';
-let peliHls = 'https://media.bibliafilm.com/hls/clip15/pelicula.m3u8', peliMp4 = 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip15';
-let peliPreparada = false, hlsPeli = null;
+// Película de cada idioma. Manda episodios.json: «pelicula» es la española; «peliculas.en» y «.pt» solo cuentan si dicen
+// "publicada": true (se marca cuando su película ya está subida al almacén). Estos son los valores de reserva por si
+// episodios.json no llega: publicar.sh reescribe la española (hls/clipN/, ?v=clipN); en y pt, null (sin película propia
+// se ve la española) hasta que tengan sus direcciones definitivas.
+const PELIS = {
+  es: {hls: 'https://media.bibliafilm.com/hls/clip15/pelicula.m3u8', mp4: 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip15'},
+  en: null,
+  pt: null
+};
+let peliHls = PELIS.es.hls, peliMp4 = PELIS.es.mp4, mp4Es = PELIS.es.mp4;
+// peliPreparada: la película ya se ha cargado en el visor (desde ahí nada la cambia). peliElegida: ya se sabe cuál toca (en
+// /en/ y /pt/, al leer episodios.json). peliPropia: la elegida es la del idioma de la página, no la española.
+let peliPreparada = false, peliElegida = LANG === 'es', peliPropia = false, hlsPeli = null, esperandoPeli = null;
 const visor = $('#visor'), visorVideo = $('#visor-video');
+// Aviso «Audio en español» de /en/ y /pt/ (lo pone construir.py junto a la duración; la portada española no lo lleva)
+function audioEspanol(si) {
+  let cambia = false;
+  document.querySelectorAll('[data-audio-es]').forEach(element => { if (element.hidden === si) { element.hidden = !si; cambia = true; } });
+  if (cambia) fitAll();
+}
 function cargaHlsJs() {
   return new Promise((resolve, reject) => {
     if (window.Hls) return resolve();
@@ -162,7 +223,11 @@ function cargaHlsJs() {
     s.onload = resolve; s.onerror = () => { s.remove(); reject(Error('hls.js')); }; document.head.append(s);
   });
 }
-function respaldoPeli() { if (hlsPeli) { hlsPeli.destroy(); hlsPeli = null; } visorVideo.src = peliMp4; visorVideo.play().catch(() => {}); }
+function respaldoPeli() {
+  if (hlsPeli) { hlsPeli.destroy(); hlsPeli = null; }
+  if (LANG !== 'es' && peliMp4 === mp4Es) { peliPropia = false; audioEspanol(true); }   // el respaldo es el mp4 español
+  visorVideo.src = peliMp4; visorVideo.play().catch(() => {});
+}
 // Si a los 8 s no ha echado a andar (algunos Android dicen que leen la emisión por trozos y se quedan cargando sin dar
 // error), se pasa al mp4 de respaldo. Comentario de un espectador en TikTok, 27-sep: «no funciona la aplicación».
 function vigilaArranque() {
@@ -172,23 +237,25 @@ function vigilaArranque() {
 }
 function abrePeli() {
   visor.hidden = false; $('#visor-cerrar').focus({preventScroll: true});
-  if (!peliPreparada) {
-    peliPreparada = true; vigilaArranque();
-    // Recomendación oficial de hls.js (README): canPlayType dice «maybe» también en Chrome y Android, que luego no siempre
-    // pueden; la emisión directa solo en Safari moderno (ManagedMediaSource) o en iPhones antiguos sin MediaSource.
-    const nativo = visorVideo.canPlayType('application/vnd.apple.mpegurl') &&
-      ('ManagedMediaSource' in window || !('MediaSource' in window));
-    if (nativo) visorVideo.src = peliHls;
-    else {
-      cargaHlsJs().then(() => {
-        if (!window.Hls.isSupported()) return respaldoPeli();
-        hlsPeli = new window.Hls({capLevelToPlayerSize: true}); hlsPeli.on(window.Hls.Events.ERROR, (_, d) => { if (d.fatal) respaldoPeli(); });
-        hlsPeli.loadSource(peliHls); hlsPeli.attachMedia(visorVideo); visorVideo.play().catch(() => {});
-      }).catch(respaldoPeli);
-      return;
-    }
-  }
-  visorVideo.play().catch(() => {});
+  if (peliPreparada) { visorVideo.play().catch(() => {}); return; }
+  if (peliElegida) { arrancaPeli(); return; }
+  // /en/ o /pt/ antes de saber si su película está publicada (episodios.json aún no ha llegado): se espera esa respuesta,
+  // como mucho 1,5 s, para no abrir la española por haber tocado deprisa. Si se cierra el visor mientras, no arranca.
+  if (!esperandoPeli) esperandoPeli = Promise.race([eleccion, new Promise(resolve => setTimeout(resolve, 1500))])
+    .then(() => { esperandoPeli = null; if (!visor.hidden && !peliPreparada) arrancaPeli(); });
+}
+function arrancaPeli() {
+  peliPreparada = true; vigilaArranque();
+  // Recomendación oficial de hls.js (README): canPlayType dice «maybe» también en Chrome y Android, que luego no siempre
+  // pueden; la emisión directa solo en Safari moderno (ManagedMediaSource) o en iPhones antiguos sin MediaSource.
+  const nativo = visorVideo.canPlayType('application/vnd.apple.mpegurl') &&
+    ('ManagedMediaSource' in window || !('MediaSource' in window));
+  if (nativo) { visorVideo.src = peliHls; visorVideo.play().catch(() => {}); return; }
+  cargaHlsJs().then(() => {
+    if (!window.Hls.isSupported()) return respaldoPeli();
+    hlsPeli = new window.Hls({capLevelToPlayerSize: true}); hlsPeli.on(window.Hls.Events.ERROR, (_, d) => { if (d.fatal) respaldoPeli(); });
+    hlsPeli.loadSource(peliHls); hlsPeli.attachMedia(visorVideo); visorVideo.play().catch(() => {});
+  }).catch(respaldoPeli);
 }
 function cierraPeli() { visorVideo.pause(); visor.hidden = true; }
 $('#film-link').addEventListener('click', event => {
@@ -197,45 +264,74 @@ $('#film-link').addEventListener('click', event => {
 });
 $('#visor-cerrar').addEventListener('click', cierraPeli);
 document.addEventListener('keydown', event => { if (event.key === 'Escape' && !visor.hidden) cierraPeli(); });
-visorVideo.addEventListener('error', () => { if (!hlsPeli && visorVideo.src !== peliMp4) respaldoPeli(); });
+visorVideo.addEventListener('error', () => {
+  if (!hlsPeli && visorVideo.src !== peliMp4) respaldoPeli();
+  else if (!hlsPeli && peliMp4 !== mp4Es) { peliMp4 = mp4Es; respaldoPeli(); }   // tampoco responde la del idioma: la española (con su aviso)
+});
 window.addEventListener('pagehide', () => visorVideo.pause());
 
 // Duration and the film's current sources come from episodios.json.
 const sourceOrigin = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'https://bibliafilm.com' : location.origin;
-fetch(sourceOrigin + '/episodios.json').then(response => {
-  if (!response.ok) throw Error('metadata');
-  return response.json();
-}).then(data => {
-  const movie = data.pelicula;
-  if (!movie) return;
-  if (movie.minutos) setDuration(Number(movie.minutos) * 60);
-  if (peliPreparada) return;                    // una respuesta lenta nunca cambia una película ya en marcha
-  const cdn = (data.cdn || 'https://media.bibliafilm.com').replace(/\/$/, '');
+// Una entrada de episodios.json ({video, mp4, minutos}) resuelta contra el almacén. Solo se acepta una emisión .m3u8 y una
+// reserva .mp4 de bibliafilm.com (también las de en/ y pt/ de los otros idiomas).
+function fuentesDe(movie, cdn) {
   const url = v => v ? new URL(/^https?:|^\//.test(v) ? v : cdn + '/' + v, sourceOrigin + '/') : null;
   const vale = u => u && ['https://bibliafilm.com', 'https://www.bibliafilm.com', 'https://media.bibliafilm.com'].includes(u.origin);
   const m3u8 = url(movie.video), mp4 = url(movie.mp4);
-  if (vale(m3u8) && /\.m3u8(\?|$)/.test(m3u8.pathname)) peliHls = m3u8.href;
-  if (vale(mp4) && /\.mp4(\?|$)/.test(mp4.pathname)) peliMp4 = mp4.href;
-}).catch(() => {});
+  return {hls: vale(m3u8) && /\.m3u8(\?|$)/.test(m3u8.pathname) ? m3u8.href : null, mp4: vale(mp4) && /\.mp4(\?|$)/.test(mp4.pathname) ? mp4.href : null};
+}
+// Qué película toca. En /en/ y /pt/ basta con episodios.json (sin comprobar el almacén, que costaría otra espera): si da
+// la del idioma por publicada, esa; si luego no respondiera, el reproductor pasa a su mp4 y, si tampoco, a la española.
+const eleccion = fetch(sourceOrigin + '/i18n/episodios.json').then(response => {
+  if (!response.ok) throw Error('metadata');
+  return response.json();
+}).then(data => data, () => null).then(data => {
+  const cdn = ((data && data.cdn) || 'https://media.bibliafilm.com').replace(/\/$/, '');
+  const pelis = (data && data.peliculas) || {};
+  // la española: «pelicula» (la que mantienen terminar-clip.py y publicar.sh), igual a peliculas.es
+  const movie = data && (data.pelicula || pelis.es);
+  if (LANG === 'es') {
+    if (!movie) return;
+    if (movie.minutos) setDuration(Number(movie.minutos) * 60);
+    if (peliPreparada) return;                    // una respuesta lenta nunca cambia una película ya en marcha
+    const f = fuentesDe(movie, cdn);
+    if (f.hls) peliHls = f.hls;
+    if (f.mp4) peliMp4 = mp4Es = f.mp4;
+    return;
+  }
+  // Otro idioma: su película si episodios.json la da por publicada (si no llega, la de reserva de PELIS); si no, la española.
+  const propia = data ? (pelis[LANG] && pelis[LANG].publicada === true ? pelis[LANG] : null)
+    : PELIS[LANG] && {video: PELIS[LANG].hls, mp4: PELIS[LANG].mp4};
+  const es = movie ? fuentesDe(movie, cdn) : {}, f = propia ? fuentesDe(propia, cdn) : {};
+  if (!peliPreparada) {                           // una respuesta lenta nunca cambia una película ya en marcha
+    if (es.hls) peliHls = es.hls;
+    if (es.mp4) peliMp4 = mp4Es = es.mp4;
+    if (f.hls) { peliHls = f.hls; if (f.mp4) peliMp4 = f.mp4; peliPropia = true; }
+  }
+  audioEspanol(!peliPropia);
+  const minutos = Number(peliPropia ? propia.minutos || (movie && movie.minutos) : movie && movie.minutos);
+  if (minutos) setDuration(minutos * 60);
+}).catch(() => {}).finally(() => { peliElegida = true; });
 
 let amount = 5, paymentReady, previousFocus;
-const euro = number => new Intl.NumberFormat('es-ES', {style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(number) ? 0 : 2, maximumFractionDigits: 2}).format(number);   // 5 €, 7,50 €
+const euro = number => new Intl.NumberFormat(LOCALE, {style: 'currency', currency: 'EUR', minimumFractionDigits: Number.isInteger(number) ? 0 : 2, maximumFractionDigits: 2}).format(number);   // 5 €, 7,50 € (en: €5, €7.50; pt: € 5)
 // Moneda de quien visita (functions/api/moneda.js, Vic 29-sep-2026: «en Colombia le aparece en euros»): los importes y
 // el botón salen en su moneda y se paga en ella (Stripe nos ingresa en euros). ?moneda=cop la fuerza para probar.
 let moneda = {moneda: 'eur', dec: 2, paso: .01, min: .5, max: 1000, importes: [3, 5, 10, 20]};
 window.__moneda = moneda;
 const money = number => moneda.moneda === 'eur' ? euro(number)
-  : new Intl.NumberFormat('es-ES', {useGrouping: 'always', minimumFractionDigits: Number.isInteger(number) ? 0 : 2, maximumFractionDigits: 2}).format(number) + ' ' + moneda.moneda.toUpperCase();   // 20.000 COP
+  : LANG === 'es' ? new Intl.NumberFormat('es-ES', {useGrouping: 'always', minimumFractionDigits: Number.isInteger(number) ? 0 : 2, maximumFractionDigits: 2}).format(number) + ' ' + moneda.moneda.toUpperCase()   // 20.000 COP
+  : new Intl.NumberFormat(LOCALE, {style: 'currency', currency: moneda.moneda.toUpperCase(), minimumFractionDigits: Number.isInteger(number) ? 0 : 2, maximumFractionDigits: 2}).format(number);   // $5, R$ 20, COP 20,000
 function applyCurrency(data) {
   moneda = data; window.__moneda = data;
   document.querySelectorAll('[data-amount]').forEach((button, i) => {
     const value = data.importes[i]; if (value == null) return;
     button.dataset.amount = String(value); button.setAttribute('aria-label', money(value));
-    button.textContent = new Intl.NumberFormat('es-ES', {useGrouping: 'always'}).format(value);   // en el móvil solo cabe la cifra
+    button.textContent = new Intl.NumberFormat(LOCALE, {useGrouping: 'always'}).format(value);   // en el móvil solo cabe la cifra
   });
   const input = $('#custom-amount');
   input.min = String(data.min); input.max = String(data.max); input.step = String(data.paso); input.value = '';
-  input.setAttribute('aria-label', 'Otra cantidad en ' + data.moneda.toUpperCase());
+  input.setAttribute('aria-label', t('otraCantidadEn', {moneda: data.moneda.toUpperCase()}));
   if (input.nextElementSibling) input.nextElementSibling.textContent = data.moneda.toUpperCase();
   selectAmount(data.importes[1]);
 }
@@ -260,7 +356,7 @@ function toast(text) {
 function selectAmount(number) {
   amount = number;
   document.querySelectorAll('[data-amount]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.amount) === number && !$('#custom-amount').value)));
-  $('#support-label').textContent = Number.isFinite(number) && number >= moneda.min && number <= moneda.max ? 'Continuar con ' + money(number) : 'Elige una cantidad';
+  $('#support-label').textContent = Number.isFinite(number) && number >= moneda.min && number <= moneda.max ? t('continuarCon', {importe: money(number)}) : T.eligeCantidad;
 }
 document.querySelectorAll('[data-amount]').forEach(button => button.addEventListener('click', () => { $('#custom-amount').value = ''; selectAmount(Number(button.dataset.amount)); }));
 $('#custom-amount').addEventListener('input', event => selectAmount(event.target.value ? Number(event.target.value) : moneda.importes[1]));
@@ -270,28 +366,30 @@ dialog.addEventListener('close', () => { $('#acepto').checked = false; if ($('#a
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script'); script.src = src; script.onload = resolve;
-    script.onerror = () => { script.remove(); reject(Error('No se ha podido conectar con el servicio de pago.')); };
+    script.onerror = () => { script.remove(); reject(Error(T.sinConexionPago)); };
     document.head.append(script);
   });
 }
 async function preparePayment() {
   await pideMoneda();
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1791127894');
+  await loadScript('/i18n/nuevo/apoyo.js?v=1791024010');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
   await pideMoneda();
   const custom = $('#custom-amount');
   if (!Number.isFinite(amount) || amount < moneda.min || amount > moneda.max) {
-    custom.setCustomValidity('Elige una cantidad entre ' + money(moneda.min) + ' y ' + money(moneda.max) + '.'); custom.reportValidity(); custom.setCustomValidity(''); return;
+    custom.setCustomValidity(t('cantidadEntre', {min: money(moneda.min), max: money(moneda.max)})); custom.reportValidity(); custom.setCustomValidity(''); return;
   }
   amount = moneda.paso >= 1 ? Math.round(amount) : Math.round(amount * 100) / 100; previousFocus = document.activeElement;
   $('#payment-amount').textContent = money(amount);
   dialog.showModal();
   if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
-    $('#payment-loading').textContent = 'Vista de prueba: los pagos se activan únicamente en bibliafilm.com.'; return;
+    $('#payment-loading').textContent = T.vistaPrueba; return;
   }
+  // vista previa *.pages.dev: ni Stripe ni cobros (la clave publicable es la real)
+  if (PRUEBAS) { $('#payment-loading').textContent = T.entornoPruebas; return; }
   try {
     if (!paymentReady) paymentReady = preparePayment().catch(error => { paymentReady = null; throw error; });
     await paymentReady;
@@ -300,16 +398,16 @@ $('#support-form').addEventListener('submit', async event => {
     if (preset) preset.click();
     else { $('#otro').value = String(amount); $('#otro').dispatchEvent(new Event('input', {bubbles: true})); }
     if (dialog.open) $('#apoyar').click();
-  } catch (error) { $('#payment-loading').textContent = error.message + ' Puedes volver a intentarlo cerrando esta ventana.'; }
+  } catch (error) { $('#payment-loading').textContent = t('reintentar', {error: error.message}); }
 });
 $('#share-project').addEventListener('click', async () => {
-  const url = 'https://bibliafilm.com/';
+  const url = T.compartirUrl;
   if (navigator.share) {
-    try { await navigator.share({title: 'Biblia Film · La Biblia, hecha cine', text: 'Mira Génesis gratis y ayuda a crear lo que viene.', url}); return; }
+    try { await navigator.share({title: T.compartirTitulo, text: T.compartirTexto, url}); return; }
     catch (error) { if (error.name === 'AbortError') return; }
   }
-  try { await navigator.clipboard.writeText(url); toast('Enlace copiado. Gracias por compartirlo.'); }
-  catch { toast('Puedes compartir la dirección de esta página.'); }
+  try { await navigator.clipboard.writeText(url); toast(T.enlaceCopiado); }
+  catch { toast(T.compartirDireccion); }
 });
 
 // iPhone: Safari cambia el alto visible al abrir/cerrar el teclado o plegar sus barras, y a veces deja la página
