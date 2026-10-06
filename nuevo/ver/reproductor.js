@@ -8,8 +8,8 @@ const duration = document.querySelector('#duration');
 // Nunca se sirve el archivo original entero. Safari la lee sola; el resto usa hls.js.
 const HLSJS = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js';
 const HLSJS_SRI = 'sha512-laeOywAR8veaLuF0pnbe9aXnZF0OhY25VdUkVgeRDUezc5IB1XVvqNYASMEVLh2nFvLEX/MStxGvpaNoVH6hRQ==';
-let source = 'https://media.bibliafilm.com/hls/clip17/pelicula.m3u8';
-let fallback = 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip17';
+let source = 'https://media.bibliafilm.com/hls/clip17b/pelicula.m3u8';
+let fallback = 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip17b';
 const native = film.canPlayType('application/vnd.apple.mpegurl');
 let hls = null, ready = null, started = false, loading = false;
 direct.href = fallback;
@@ -31,7 +31,9 @@ async function prepare() {
   try { if (!window.Hls) await loadScript(HLSJS); } catch { useFallback(); return; }
   if (!Hls.isSupported()) { useFallback(); return; }
   // en reposo solo se adelantan 6 s (como hace Safari con preload="metadata"); al reproducir, 30 s
-  hls = new Hls({maxBufferLength: 6, capLevelToPlayerSize: true});
+  // Vic, 6-oct: arranca en 1080p y después sube o baja según la conexión (no según el tamaño de la pantalla)
+  hls = new Hls({maxBufferLength: 6, capLevelToPlayerSize: false});
+  hls.on(Hls.Events.MANIFEST_PARSED, (_, d) => { const i = d.levels.findIndex(l => l.height === 1080); if (i >= 0) hls.startLevel = i; });
   hls.on(Hls.Events.ERROR, (_, data) => { if (data.fatal) useFallback(); });
   hls.loadSource(source);
   hls.attachMedia(film);

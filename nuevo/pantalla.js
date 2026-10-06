@@ -152,7 +152,7 @@ showView(viewFromHash() || 'pelicula', false);
 // resto con hls.js) y el mp4 de respaldo. /nuevo/ver/ sigue existiendo para quien abra el enlace aparte.
 const HLSJS = 'https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js';
 const HLSJS_SRI = 'sha512-laeOywAR8veaLuF0pnbe9aXnZF0OhY25VdUkVgeRDUezc5IB1XVvqNYASMEVLh2nFvLEX/MStxGvpaNoVH6hRQ==';
-let peliHls = 'https://media.bibliafilm.com/hls/clip17/pelicula.m3u8', peliMp4 = 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip17';
+let peliHls = 'https://media.bibliafilm.com/hls/clip17b/pelicula.m3u8', peliMp4 = 'https://media.bibliafilm.com/pelicula-720.mp4?v=clip17b';
 let peliPreparada = false, hlsPeli = null;
 const visor = $('#visor'), visorVideo = $('#visor-video');
 function cargaHlsJs() {
@@ -182,7 +182,9 @@ function abrePeli() {
     else {
       cargaHlsJs().then(() => {
         if (!window.Hls.isSupported()) return respaldoPeli();
-        hlsPeli = new window.Hls({capLevelToPlayerSize: true}); hlsPeli.on(window.Hls.Events.ERROR, (_, d) => { if (d.fatal) respaldoPeli(); });
+        // Vic, 6-oct: arranca en 1080p y después sube o baja según la conexión
+        hlsPeli = new window.Hls({capLevelToPlayerSize: false}); hlsPeli.on(window.Hls.Events.ERROR, (_, d) => { if (d.fatal) respaldoPeli(); });
+        hlsPeli.on(window.Hls.Events.MANIFEST_PARSED, (_, d) => { const i = d.levels.findIndex(l => l.height === 1080); if (i >= 0) hlsPeli.startLevel = i; });
         hlsPeli.loadSource(peliHls); hlsPeli.attachMedia(visorVideo); visorVideo.play().catch(() => {});
       }).catch(respaldoPeli);
       return;
@@ -277,7 +279,7 @@ function loadScript(src) {
 async function preparePayment() {
   await pideMoneda();
   if (!window.Stripe) await loadScript('https://js.stripe.com/v3/');
-  await loadScript('/nuevo/apoyo.js?v=1791240923');
+  await loadScript('/nuevo/apoyo.js?v=1791287411');
 }
 $('#support-form').addEventListener('submit', async event => {
   event.preventDefault();
