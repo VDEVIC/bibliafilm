@@ -213,3 +213,7 @@ dialog{border:1px solid var(--line);border-radius:18px;padding:28px 22px;width:m
 .visor[hidden]{display:none}
 .visor video{display:block;width:100%;max-width:100%;max-height:100%;aspect-ratio:16/9;background:#000}
 .visor-cerrar{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:calc(env(safe-area-inset-right) + 12px);z-index:2;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;font-size:28px;line-height:44px;cursor:pointer}
+
+/* Acceso al libro sin interferir con las pestañas o las aportaciones. */
+.header-actions{display:flex;align-items:center;gap:8px}.header-book{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 13px;background:var(--deep);color:var(--paper);border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap}.header-book:hover{background:#294635}
+@media(max-width:400px){.topbar-in{gap:8px}.header-actions{gap:2px}.header-book{padding:8px 10px;font-size:11px}}
