@@ -89,12 +89,8 @@ export async function onRequest(context) {
   return new HTMLRewriter()
     .on('html',{element(element) {element.setAttribute('data-country',country);element.setAttribute('data-offer',JSON.stringify(offer));}})
     .on('#offers',{element(element) {
-      element.setInnerContent(`<p class="offer-price"><span>Edición Kindle</span><strong>${escapeHtml(offer.price)}</strong></p><a class="buy-link" href="${offer.url}"><span>Comprar en Amazon</span><span class="arrow" aria-hidden="true">→</span></a><p class="buy-caption">${offer.name} · Precio final al comprar.</p>`,{html:true});
-    }})
-    .on('#currency-note',{element(element) {
-      if (!offer.approx) return;
-      element.removeAttribute('hidden');
-      element.setInnerContent(`<p>Importe aproximado en ${offer.currency}. Amazon aplica su propio cambio. Cambio orientativo del ${offer.asOf}. <a href="https://www.exchangerate-api.com">Rates By Exchange Rate API</a></p>`,{html:true});
+      const paper = country === 'ES' ? '<div class="format-card"><dt>En papel<small>Tapa blanda</small></dt><dd>15,49 €</dd></div>' : '';
+      element.setInnerContent(`<dl class="format-options${country === 'ES' ? '' : ' single-format'}">${paper}<div class="format-card"><dt>Digital<small>Edición Kindle</small></dt><dd>${escapeHtml(offer.price)}</dd></div></dl><a class="buy-link" href="${offer.url}"><span>Comprar en Amazon</span><span class="arrow" aria-hidden="true">→</span></a>`,{html:true});
     }})
     .transform(personalized);
 }
