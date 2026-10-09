@@ -9,7 +9,7 @@ export function countryFor(request) {
 }
 
 export function storeFor(country) {
-  return ({ES: ['amazon.es', 'Amazon España'], MX: ['amazon.com.mx', 'Amazon México'], BR: ['amazon.com.br', 'Amazon Brasil']})[country] || ['amazon.com', 'Amazon.com'];
+  return ({ES: ['amazon.es', 'Amazon España', '2,69 €'], MX: ['amazon.com.mx', 'Amazon México', '34,99 MXN'], BR: ['amazon.com.br', 'Amazon Brasil', 'R$ 5,99']})[country] || ['amazon.com', 'Amazon.com', '2,99 USD'];
 }
 
 export async function onRequest(context) {
@@ -18,7 +18,7 @@ export async function onRequest(context) {
   const response = await context.next();
   if (!response.ok || !response.headers.get('content-type')?.includes('text/html')) return response;
   const country = countryFor(context.request);
-  const [store, name] = storeFor(country);
+  const [store, name, price] = storeFor(country);
   const headers = new Headers(response.headers);
   headers.set('Cache-Control', 'private, no-store');
   headers.set('CDN-Cache-Control', 'no-store');
@@ -27,7 +27,7 @@ export async function onRequest(context) {
   return new HTMLRewriter()
     .on('html', {element(element) { element.setAttribute('data-country', country); }})
     .on('#offers', {element(element) {
-      element.setInnerContent(`<a class="buy-link" href="https://www.${store}/dp/B0HM5JGYSD"><span>Quiero el libro digital</span><span class="arrow" aria-hidden="true">→</span></a><p class="buy-caption">${name} · Precio final y disponibilidad al comprar.</p>`, {html: true});
+      element.setInnerContent(`<p class="initial"><strong>Digital Kindle · ${price}</strong></p><a class="buy-link" href="https://www.${store}/dp/B0HM5JGYSD"><span>Quiero el libro digital</span><span class="arrow" aria-hidden="true">→</span></a><p class="buy-caption">${name} está actualizando la rebaja. Confirma el precio al comprar.</p>`, {html: true});
     }})
     .transform(personalized);
 }
