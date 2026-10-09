@@ -1,83 +1,127 @@
 'use strict';
 const country = document.getElementById('country');
 const offers = document.getElementById('offers');
-const kindleId = 'B0HM5JGYSD';
 const validCountries = new Set(Array.from(country.options, option => option.value).filter(Boolean));
 const markets = {
-  ES: {store: 'amazon.es', price: '7,49 €', button: 'Comprar Kindle en Amazon.es'},
-  MX: {store: 'amazon.com.mx', price: '179 MXN', button: 'Comprar Kindle en Amazon México'},
-  BR: {store: 'amazon.com.br', price: '44,90 R$', button: 'Comprar Kindle en Amazon Brasil'}
+  ES: {store: 'amazon.es', name: 'Amazon España', price: '7,49 €'},
+  MX: {store: 'amazon.com.mx', name: 'Amazon México', price: '179 MXN'},
+  BR: {store: 'amazon.com.br', name: 'Amazon Brasil', price: '44,90 R$'}
 };
-function makeOffer(title, price, description, href, label, secondary = false) {
-  const article = document.createElement('article');
-  article.className = 'offer';
-  const heading = document.createElement('div');
-  heading.className = 'offer-heading';
-  const name = document.createElement('h3');
-  name.textContent = title;
-  const cost = document.createElement('span');
-  cost.className = 'price';
-  cost.textContent = price;
-  heading.append(name, cost);
-  const text = document.createElement('p');
-  text.className = 'offer-description';
-  text.textContent = description;
-  const link = document.createElement('a');
-  link.className = secondary ? 'button secondary' : 'button';
-  link.href = href;
-  link.textContent = label + ' ↗';
-  article.append(heading, text, link);
-  return article;
+let selectedFormat = 'paper';
+let selectionVersion = 0;
+function make(tag, className, text) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (text !== undefined) element.textContent = text;
+  return element;
 }
 function updateOffers() {
-  const code = validCountries.has(country.value) ? country.value : '';
+  const code = country.value;
   offers.replaceChildren();
-  if (!code) {
-    const initial = document.createElement('p');
-    initial.className = 'initial';
-    initial.textContent = 'Consulta la edición y la tienda para tu país.';
+  if (!validCountries.has(code)) {
+    const initial = make('p', 'initial');
+    initial.append(make('strong', '', 'Elige tu país '), 'para ver el precio y comprar.');
     offers.append(initial);
     return;
   }
-  const countryName = country.selectedOptions[0].textContent;
-  const market = markets[code];
-  const summary = document.createElement('p');
-  summary.className = 'selection-summary';
-  const destination = document.createElement('strong');
-  destination.textContent = 'Compra para ' + countryName;
-  const store = document.createElement('span');
-  store.textContent = market ? market.store : 'amazon.com · edición digital';
-  summary.append(destination, store);
-  offers.append(summary);
-
-  if (code !== 'ES') {
-    const availability = document.createElement('p');
-    availability.className = 'availability-note';
-    availability.textContent = 'Para ' + countryName + ' ofrecemos por ahora la edición digital.';
-    offers.append(availability);
+  const market = markets[code] || {store: 'amazon.com', name: 'Amazon.com', price: '8,49 USD*'};
+  if (code !== 'ES') selectedFormat = 'digital';
+  const formats = make('div', code === 'ES' ? 'format-options' : 'format-options single-format');
+  formats.setAttribute('role', 'group');
+  formats.setAttribute('aria-label', 'Formato del libro');
+  function option(format, name, detail, price) {
+    const button = make('button', 'format-option');
+    button.type = 'button';
+    button.dataset.format = format;
+    button.setAttribute('aria-pressed', String(format === selectedFormat));
+    const label = make('span', 'label', name);
+    label.append(make('small', '', detail));
+    button.append(label, make('span', 'price', price));
+    formats.append(button);
   }
-  if (code === 'ES') {
-    offers.append(makeOffer('Libro en papel', '15,49 €', 'Tapa blanda · 162 páginas a color. Compra en la tienda española; el envío y la entrega se calculan según tu dirección y pedido.', 'https://www.amazon.es/dp/B0HM5F1M4P', 'Comprar en papel · Amazon España'));
-  }
-  offers.append(makeOffer('Libro digital · Kindle', market ? market.price : 'Base: 8,49 USD', code === 'BR' ? 'Edición en español. Consulta los dispositivos compatibles en Amazon.' : 'Edición ilustrada en español. Consulta los dispositivos compatibles en Amazon.', `https://www.${market ? market.store : 'amazon.com'}/dp/${kindleId}`, market ? market.button : 'Consultar Kindle en Amazon.com', code === 'ES'));
-  const note = document.createElement('p');
-  note.className = 'fineprint';
-  note.textContent = market ? 'La compra se realiza en Amazon, que confirma la disponibilidad y el importe final antes de pagar.' : 'Amazon.com atiende a países sin tienda Kindle propia. Inicia sesión con una cuenta de tu país para confirmar la disponibilidad y el precio final, incluidos los impuestos aplicables.';
-  offers.append(note);
+  if (code === 'ES') option('paper', 'En papel', 'Tapa blanda', '15,49 €');
+  option('digital', 'Digital', 'Edición Kindle', market.price);
+  const link = make('a', 'buy-link');
+  const isPaper = selectedFormat === 'paper';
+  link.href = isPaper ? 'https://www.amazon.es/dp/B0HM5F1M4P' : `https://www.${market.store}/dp/B0HM5JGYSD`;
+  link.append(make('span', '', isPaper ? 'Quiero el libro' : 'Quiero el libro digital'), make('span', 'arrow', '→'));
+  link.setAttribute('aria-label', `${isPaper ? 'Comprar el libro en papel' : 'Comprar el libro digital Kindle'} en ${market.name}`);
+  const note = make('p', 'buy-caption');
+  note.textContent = isPaper ? 'Amazon España · Envío calculado antes de pagar.' : markets[code] ? `${market.name} · Libro en español.` : 'Amazon.com · *Precio base. Confirma impuestos y disponibilidad.';
+  offers.append(formats, link, note);
 }
-function restoreCountry() {
-  const saved = new URL(location.href).searchParams.get('pais');
-  country.value = validCountries.has(saved) ? saved : '';
-  updateOffers();
-}
-country.addEventListener('change', () => {
+function syncUrl() {
   const url = new URL(location.href);
   if (validCountries.has(country.value)) url.searchParams.set('pais', country.value);
   else url.searchParams.delete('pais');
-  // La selección queda visible en el enlace y se conserva al volver de Amazon.
   history.replaceState(null, '', url);
+}
+function restoreCountry() {
+  const code = new URL(location.href).searchParams.get('pais');
+  country.value = validCountries.has(code) ? code : '';
+  selectedFormat = country.value === 'ES' ? 'paper' : 'digital';
   updateOffers();
+}
+country.addEventListener('change', () => {
+  selectionVersion++;
+  selectedFormat = country.value === 'ES' ? 'paper' : 'digital';
+  syncUrl();
+  updateOffers();
+});
+offers.addEventListener('click', event => {
+  const button = event.target.closest('[data-format]');
+  if (!button) return;
+  selectedFormat = button.dataset.format;
+  updateOffers();
+  offers.querySelector(`[data-format="${selectedFormat}"]`).focus({preventScroll: true});
 });
 restoreCountry();
 window.addEventListener('pageshow', restoreCountry);
 window.addEventListener('popstate', restoreCountry);
+// Reutiliza el país aproximado que la web ya ofrece. La elección expresa siempre gana.
+if (!new URL(location.href).searchParams.has('pais')) {
+  const initialVersion = selectionVersion;
+  fetch('/api/moneda', {cache: 'no-store'}).then(response => response.ok ? response.json() : null).then(data => {
+    if (selectionVersion !== initialVersion || country.value || !data || !validCountries.has(data.pais)) return;
+    country.value = data.pais;
+    selectedFormat = data.pais === 'ES' ? 'paper' : 'digital';
+    syncUrl();
+    updateOffers();
+  }).catch(() => {});
+}
+const preview = document.getElementById('preview-dialog');
+const sampleImage = document.getElementById('sample-image');
+const pageCaption = document.getElementById('page-caption');
+const samples = [
+  {file: 'moises.webp', caption: 'Moisés · Un camino entre las aguas', alt: 'Páginas 50 y 51: Moisés y las familias cruzan el mar, con el texto del cuento.'},
+  {file: 'daniel.webp', caption: 'Daniel · La ventana abierta', alt: 'Páginas 90 y 91 del cuento de Daniel, con las ilustraciones y su texto.'},
+  {file: 'jesus.webp', caption: 'Jesús hace sitio', alt: 'Páginas 150 y 151: Jesús recibe a los niños, con las ilustraciones y su texto.'}
+];
+let sampleIndex = 0;
+function showSample(index) {
+  sampleIndex = (index + samples.length) % samples.length;
+  const sample = samples[sampleIndex];
+  sampleImage.src = '/libros/assets/' + sample.file;
+  sampleImage.alt = sample.alt;
+  pageCaption.textContent = `${sampleIndex + 1} / ${samples.length} · ${sample.caption}`;
+}
+document.querySelectorAll('[data-preview]').forEach(button => button.addEventListener('click', () => {showSample(0); preview.showModal();}));
+document.getElementById('previous-page').addEventListener('click', () => showSample(sampleIndex - 1));
+document.getElementById('next-page').addEventListener('click', () => showSample(sampleIndex + 1));
+preview.addEventListener('keydown', event => {
+  if (event.key === 'ArrowRight') {event.preventDefault(); showSample(sampleIndex + 1);}
+  if (event.key === 'ArrowLeft') {event.preventDefault(); showSample(sampleIndex - 1);}
+});
+const videoDialog = document.getElementById('video-dialog');
+const promo = document.getElementById('promo-video');
+document.getElementById('play-video').addEventListener('click', () => {
+  videoDialog.showModal();
+  promo.play().catch(() => {});
+});
+videoDialog.addEventListener('close', () => {promo.pause(); promo.currentTime = 0;});
+document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
+document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click', event => {
+  if (event.target !== dialog) return;
+  const rect = dialog.getBoundingClientRect();
+  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) dialog.close();
+}));
