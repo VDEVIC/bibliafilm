@@ -1,0 +1,3 @@
+/libro /libros/ 301
+/libro/ /libros/ 301
+/libro/* /libros/:splat 301
