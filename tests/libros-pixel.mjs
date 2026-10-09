@@ -20,6 +20,7 @@ fresh.buttons[0].click(); assert.equal(fresh.scripts.length,1); assert.equal(fre
 assert.match(fresh.scripts[0].src,/sdkid=DB4IV8RC77U074LG1GRG/);
 assert.deepEqual(Array.from(fresh.window.ttq,entry=>entry[0]),['holdConsent','grantConsent','page','track']);
 assert.equal(fresh.window.ttq.at(-1)[1],'ViewContent');
+assert.equal(fresh.window.ttq.at(-1)[2].contents[0].content_id,'B0HM5JGYSD');
 fresh.buttons[1].click(); assert.equal(fresh.window.ttq.at(-1)[0],'revokeConsent');
 fresh.buttons[0].click(); assert.equal(fresh.scripts.length,1); assert.equal(fresh.window.ttq.at(-1)[0],'grantConsent');
 assert.equal(fixture({choice:'rejected',expires:Date.now()+100000}).scripts.length,0);
