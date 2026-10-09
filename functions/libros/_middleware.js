@@ -89,7 +89,7 @@ export async function onRequest(context) {
   return new HTMLRewriter()
     .on('html',{element(element) {element.setAttribute('data-country',country);element.setAttribute('data-offer',JSON.stringify(offer));}})
     .on('#offers',{element(element) {
-      element.setInnerContent(`<p class="initial"><strong>Digital Kindle · ${escapeHtml(offer.price)}</strong></p><a class="buy-link" href="${offer.url}"><span>Quiero el libro digital</span><span class="arrow" aria-hidden="true">→</span></a><p class="buy-caption">${offer.name} está actualizando la rebaja. Confirma el precio al comprar.</p>`,{html:true});
+      element.setInnerContent(`<p class="initial"><strong>Digital Kindle · ${escapeHtml(offer.price)}</strong></p><a class="buy-link" href="${offer.url}"><span>Quiero el libro digital</span><span class="arrow" aria-hidden="true">→</span></a><p class="buy-caption">${offer.name} · Precio final al comprar.</p>`,{html:true});
     }})
     .on('#currency-note',{element(element) {
       if (!offer.approx) return;
