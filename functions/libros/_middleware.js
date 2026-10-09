@@ -3,10 +3,9 @@
 const countries = new Set('INT ES MX GT EC AR BZ BO BR CL CO CR SV US HT HN NI PA PY PE PR DO UY VE'.split(' '));
 
 export function countryFor(request) {
-  const query = (new URL(request.url).searchParams.get('pais') || '').toUpperCase();
-  const saved = (request.headers.get('cookie') || '').match(/(?:^|;\s*)bf_libro_pais=([A-Z]{2,3})(?:;|$)/)?.[1];
+  // Ignora selecciones antiguas y enlaces compartidos con otro país.
   const detected = request.cf?.country;
-  return [query, saved, detected, 'INT'].find(code => countries.has(code));
+  return countries.has(detected) ? detected : 'INT';
 }
 
 export function storeFor(country) {
@@ -27,10 +26,6 @@ export async function onRequest(context) {
   const personalized = new Response(response.body, {status: response.status, headers});
   return new HTMLRewriter()
     .on('html', {element(element) { element.setAttribute('data-country', country); }})
-    .on('#country option', {element(element) {
-      if (element.getAttribute('value') === country) element.setAttribute('selected', '');
-      else element.removeAttribute('selected');
-    }})
     .on('#offers', {element(element) {
       element.setInnerContent(`<a class="buy-link" href="https://www.${store}/dp/B0HM5JGYSD"><span>Quiero el libro digital</span><span class="arrow" aria-hidden="true">→</span></a><p class="buy-caption">${name} · Precio final y disponibilidad al comprar.</p>`, {html: true});
     }})
