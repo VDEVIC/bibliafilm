@@ -28,3 +28,7 @@
 # Plan de ingresos de Vic (/plan/): fuera de buscadores
 /plan/*
   X-Robots-Tag: noindex
+
+# Las muestras y miniaturas del libro se reutilizan entre aperturas.
+/libros/assets/*
+  Cache-Control: public, max-age=604800

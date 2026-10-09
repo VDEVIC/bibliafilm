@@ -9,6 +9,9 @@ const markets = {
 };
 let selectedFormat = 'paper';
 let selectionVersion = 0;
+const storeConnection = document.createElement('link');
+storeConnection.rel = 'preconnect';
+document.head.append(storeConnection);
 function make(tag, className, text) {
   const element = document.createElement(tag);
   if (className) element.className = className;
@@ -44,6 +47,8 @@ function updateOffers() {
   const link = make('a', 'buy-link');
   const isPaper = selectedFormat === 'paper';
   link.href = isPaper ? 'https://www.amazon.es/dp/B0HM5F1M4P' : `https://www.${market.store}/dp/B0HM5JGYSD`;
+  const storeOrigin = new URL(link.href).origin;
+  if (storeConnection.href !== storeOrigin + '/') storeConnection.href = storeOrigin;
   link.append(make('span', '', isPaper ? 'Quiero el libro' : 'Quiero el libro digital'), make('span', 'arrow', '→'));
   link.setAttribute('aria-label', `${isPaper ? 'Comprar el libro en papel' : 'Comprar el libro digital Kindle'} en ${market.name}`);
   const note = make('p', 'buy-caption');
@@ -69,6 +74,14 @@ country.addEventListener('change', () => {
   updateOffers();
 });
 offers.addEventListener('click', event => {
+  const buyLink = event.target.closest('.buy-link');
+  if (buyLink) {
+    if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && !event.button) {
+      buyLink.firstElementChild.textContent = 'Abriendo Amazon…';
+      buyLink.setAttribute('aria-busy', 'true');
+    }
+    return;
+  }
   const button = event.target.closest('[data-format]');
   if (!button) return;
   selectedFormat = button.dataset.format;
@@ -91,6 +104,8 @@ if (!new URL(location.href).searchParams.has('pais')) {
 }
 const preview = document.getElementById('preview-dialog');
 const sampleImage = document.getElementById('sample-image');
+const sampleStatus = document.getElementById('sample-status');
+const sampleView = sampleImage.parentElement;
 const pageCaption = document.getElementById('page-caption');
 const samples = [
   {file: 'moises.webp', caption: 'Moisés · Un camino entre las aguas', alt: 'Páginas 50 y 51: Moisés y las familias cruzan el mar, con el texto del cuento.'},
@@ -98,12 +113,28 @@ const samples = [
   {file: 'jesus.webp', caption: 'Jesús hace sitio', alt: 'Páginas 150 y 151: Jesús recibe a los niños, con las ilustraciones y su texto.'}
 ];
 let sampleIndex = 0;
+function sampleReady() {
+  sampleView.setAttribute('aria-busy', 'false');
+  sampleStatus.hidden = true;
+  sampleImage.hidden = false;
+}
+sampleImage.addEventListener('load', sampleReady);
+sampleImage.addEventListener('error', () => {
+  sampleView.setAttribute('aria-busy', 'false');
+  sampleStatus.textContent = 'No se pudo cargar esta página. Prueba con la flecha para ver otra.';
+  sampleStatus.hidden = false;
+});
 function showSample(index) {
   sampleIndex = (index + samples.length) % samples.length;
   const sample = samples[sampleIndex];
-  sampleImage.src = '/libros/assets/' + sample.file;
+  sampleView.setAttribute('aria-busy', 'true');
+  sampleStatus.textContent = 'Cargando páginas…';
+  sampleStatus.hidden = false;
+  sampleImage.hidden = true;
   sampleImage.alt = sample.alt;
   pageCaption.textContent = `${sampleIndex + 1} / ${samples.length} · ${sample.caption}`;
+  sampleImage.src = '/libros/assets/' + sample.file;
+  if (sampleImage.complete && sampleImage.naturalWidth) sampleReady();
 }
 document.querySelectorAll('[data-preview]').forEach(button => button.addEventListener('click', () => {showSample(0); preview.showModal();}));
 document.getElementById('previous-page').addEventListener('click', () => showSample(sampleIndex - 1));
@@ -116,9 +147,15 @@ const videoDialog = document.getElementById('video-dialog');
 const promo = document.getElementById('promo-video');
 document.getElementById('play-video').addEventListener('click', () => {
   videoDialog.showModal();
+  promo.src = promo.dataset.src;
   promo.play().catch(() => {});
 });
-videoDialog.addEventListener('close', () => {promo.pause(); promo.currentTime = 0;});
+videoDialog.addEventListener('close', () => {
+  promo.pause();
+  promo.removeAttribute('src');
+  promo.load();
+});
+window.addEventListener('pagehide', () => promo.pause());
 document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
 document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('click', event => {
   if (event.target !== dialog) return;

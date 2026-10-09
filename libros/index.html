@@ -14,8 +14,8 @@
 <meta property="og:image" content="https://bibliafilm.com/libros/portada.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/img/apple-touch-icon.png">
-<link rel="stylesheet" href="/libros/libro.css?v=20261009-2">
-<script src="/libros/libro.js?v=20261009-2" defer></script>
+<link rel="stylesheet" href="/libros/libro.css?v=20261009-3">
+<script src="/libros/libro.js?v=20261009-3" defer></script>
 </head>
 <body>
 <a class="skip" href="#contenido">Saltar al contenido</a>
@@ -33,12 +33,12 @@
     <div class="book-stage">
       <span class="sun" aria-hidden="true"></span>
       <button class="book" type="button" data-preview="0" aria-label="Ver por dentro Pequeños pasos, grandes historias">
-        <img src="/libros/assets/portada.webp" width="1000" height="1000" alt="Pequeños pasos, grandes historias. 20 cuentos de la Biblia para la vida de hoy" fetchpriority="high">
+        <img src="/libros/assets/portada-800.webp" srcset="/libros/assets/portada-480.webp 480w, /libros/assets/portada-800.webp 800w, /libros/assets/portada.webp 1000w" sizes="(max-width:360px) 184px, (max-width:700px) 205px, 390px" width="1000" height="1000" alt="Pequeños pasos, grandes historias. 20 cuentos de la Biblia para la vida de hoy" fetchpriority="high" decoding="async">
       </button>
       <span class="book-stamp" aria-hidden="true"><strong>20</strong>cuentos</span>
     </div>
     <div class="preview-actions">
-      <button class="preview-button" type="button" data-preview="0"><span class="page-fan" aria-hidden="true"><img src="/libros/assets/jesus.webp" width="2000" height="1000" alt=""><img src="/libros/assets/moises.webp" width="2000" height="1000" alt=""></span><span>Ver por dentro <span aria-hidden="true">↗</span></span></button>
+      <button class="preview-button" type="button" data-preview="0"><span class="page-fan" aria-hidden="true"><img src="/libros/assets/jesus-mini.webp" width="144" height="72" alt="" decoding="async"><img src="/libros/assets/moises-mini.webp" width="144" height="72" alt="" decoding="async"></span><span>Ver por dentro <span aria-hidden="true">↗</span></span></button>
       <button class="video-button" type="button" id="play-video"><span class="play-icon" aria-hidden="true">▶</span> Ver vídeo</button>
     </div>
   </section>
@@ -78,13 +78,13 @@
 <footer class="footer wrap"><span>Historias que crecen con ellos.</span><!--email_off--><a href="mailto:info@bibliafilm.com">Contacto</a><!--/email_off--></footer>
 <dialog id="preview-dialog" aria-labelledby="preview-title">
   <div class="dialog-head"><h2 id="preview-title">Así es por dentro</h2><button type="button" class="close" data-close aria-label="Cerrar vista del libro">×</button></div>
-  <div class="page-view"><img id="sample-image" src="/libros/assets/moises.webp" width="2000" height="1000" alt=""></div>
+  <div class="page-view" aria-busy="false"><img id="sample-image" width="2000" height="1000" alt="" decoding="async" hidden><p id="sample-status" role="status" hidden>Cargando páginas…</p></div>
   <div class="page-nav"><button type="button" id="previous-page" aria-label="Ver páginas anteriores">←</button><p id="page-caption"></p><button type="button" id="next-page" aria-label="Ver páginas siguientes">→</button></div>
   <p class="sample-note">Páginas reales del libro · Pellizca para ampliar en tu móvil.</p>
 </dialog>
 <dialog id="video-dialog" aria-label="Vídeo de presentación del libro">
   <button type="button" class="close" data-close aria-label="Cerrar vídeo">×</button>
-  <video id="promo-video" controls playsinline preload="none" poster="/libros/assets/portada.webp"><source src="/libros/assets/presentacion.mp4" type="video/mp4"></video>
+  <video id="promo-video" controls playsinline preload="none" data-src="/libros/assets/presentacion.mp4"></video>
 </dialog>
 </body>
 </html>
